@@ -80,13 +80,15 @@ julia> include("julia/deploy.jl")
 
 ### Load data for a scenario
 
-The only information you must provide is the project name. The scenario will default to "default". Every project should include a default scenario in `project.json`.
+The only information you must provide is the project name. The scenario will default to "default".
+
+> **Note:**  Every project should include a default scenario in the project's project.json file.
 
 ```julia
 julia> install_data("my_first_project")
 ```
 
-In this example, data stored in `projects/my_first_project/data` will be loaded if it specified in the scenario `default` under `data` in the project.json file. The project.json file for the example project contains one csv file ("plant_purchases.csv") and it looks like:
+In this example, data files stored in `projects/my_first_project/data` will be loaded, *if* the files are listed in the `project.json` file, in the scenario `default`, under `data`. The `project.json` file for the example project contains one scenario ("default") with one csv file ("plant_purchases.csv"). It looks like:
 
 ```json
 {
@@ -98,7 +100,7 @@ In this example, data stored in `projects/my_first_project/data` will be loaded 
 }
 ```
 
-In the example, project.json specifies just one data file, "plant_purchases.csv" The function `install_data` will expect this file to be located at "projects/my_first_project/data/plant_purchases.csv". The configuration information for this data file, and all data files, should be specified in data_import.json. For our example, this file looks like,
+The function `install_data` will expect `plant_purchases.csv` to be located at `projects/my_first_project/data/plant_purchases.csv`. The configuration information for this data file, and all data files, should be specified in `data_import.json`. For our example, `data_import.json` looks like,
 
 ```json
 {
@@ -115,7 +117,7 @@ In the example, project.json specifies just one data file, "plant_purchases.csv"
 }
 ```
 
-Note that the field "optional" is not yet used.
+> **Note:** The field "optional" is not yet used.
 
 You may optionally set any of the following arguments for `install_data`:
 ```julia
@@ -126,11 +128,11 @@ function install_data(project_name::String; scenario::AbstractString="default",
 
 The optional arguments are:
 
-- scenario: String name of a scenario specified in projects.json.
-- dbname: Name for the database. This will create a new database if it does not yet exist. If set to `:default`, the database will be named `:$(project name)_$(scenario)`. In the example case, `:my_first_project_default`.
-- create_db: If true, create a new database if dbname does not exist.
-- overwrite: If true, overwrite database specified by dbname.
-- via_sdk: If true, use the Julia SDK to populate the data. If false, use the Rel native.
+- **scenario**: String name of a scenario specified in projects.json.
+- **dbname**: Name for the database. This will create a new database if it does not yet exist. If set to `:default`, the database will be named `:$(project name)_$(scenario)`. In the example case, `:my_first_project_default`.
+- **create_db**: If true, create a new database if dbname does not exist.
+- **overwrite**: If true, overwrite database specified by dbname.
+- **via_sdk**: If true, use the Julia SDK to populate the data. If false, use the Rel native.
 
 ### Load data from a single file
 
@@ -144,7 +146,7 @@ As with installing data, the only information you must provide is the project na
 julia> install_scenario("my_first_project")
 ```
 
-In the example, project.json specifies just one Rel file, "purchase_insights" (see contents of project.json above). The function `install_scenario` will expect this file to be located at "projects/my_first_project/src/purchase_insights.rel".
+In the example, `project.json` specifies just one Rel file, "purchase_insights" (see contents of `project.json` above). The function `install_scenario` will expect this file to be located at `projects/my_first_project/src/purchase_insights.rel`.
 
 You may optionally set any of the following arguments for `install_scenario`:
 ```julia
@@ -154,6 +156,38 @@ function install_scenario(project_name::String; scenario::AbstractString="defaul
 
 The optional arguments are:
 
-- scenario: String name of a scenario specified in projects.json.
-- dbname: Name for the database. This will create a new database if it does not yet exist. If set to `:default`, the database will be named `:$(project name)_$(scenario)`. In the example case, `:my_first_project_default`.
-- sequential: If true, each .rel file will be installed sequentially in the order that it appears in the project config. If false, all .rel files will be joined as a single program and installed in a single transaction.
+- **scenario**: String name of a scenario specified in projects.json.
+- **dbname**: Name for the database. This will create a new database if it does not yet exist. If set to `:default`, the database will be named `:$(project name)_$(scenario)`. In the example case, `:my_first_project_default`.
+- **sequential**: If true, each .rel file will be installed sequentially in the order that it appears in the project config. If false, all .rel files will be joined as a single program and installed in a single transaction.
+
+### Query a scenario
+
+You must provide names for the relations to query (as symbols) and the project name.
+
+```julia
+julia> query_scenario([:plant_purchases_csv],"my_first_project")
+```
+
+To define a relation to query, include the relation code with the argument `rel`.
+
+```julia
+julia> query_scenario([:plant_names],"my_first_project", 
+                      rel="""
+                      def plant_names = plant_purchases_csv[_,:Name]
+                      """)
+```
+You may optionally set any of the following arguments for `query_scenario`:
+```julia
+function query_scenario(relations::Array{Symbol}, project_name::String; 
+                        scenario::AbstractString="default",
+                        dbname::Symbol=:default,
+                        rel::AbstractString="")
+```
+
+The optional arguments are:
+
+- **scenario**: String name of a scenario specified in projects.json.
+- **dbname**: Name for the database. This will create a new database if it does not yet exist. If set to `:default`, the database will be named `:$(project name)_$(scenario)`. In the example case, `:my_first_project_default`.
+- **rel**: String with rel code that defines the queried relations.
+
+Relations defined with the `rel` argument will not be installed.

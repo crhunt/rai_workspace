@@ -79,8 +79,8 @@ end
 
 function query_scenario(relations::Array{Symbol}, project_name::String; 
                         scenario::AbstractString="default",
-                        rel::AbstractString="",
-                        dbname::Symbol=:default)
+                        dbname::Symbol=:default,
+                        rel::AbstractString="")
     
     # Set db name
     dbname = set_dbname(dbname, project_name, scenario)
