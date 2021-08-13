@@ -1,0 +1,12 @@
+{
+    "plant_purchases.csv": {
+        "rel": "plant_purchases_csv",
+        "optional": false,
+        "columns": [
+            { "name": "Name", "type": "string" , "required": "true" },
+            { "name": "Purchase_Date", "type": "date" , "required": "true" },
+            { "name": "Price", "type": "float" , "required": "true" },
+            { "name": "Quantity", "type": "int" }
+        ]
+    }
+}

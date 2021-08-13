@@ -1,0 +1,7 @@
+{
+    "default": {
+            "name": "default",
+            "deps": [ "purchase_insights" ],
+            "data": [ "plant_purchases.csv" ]
+        }
+}
