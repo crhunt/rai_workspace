@@ -2,6 +2,6 @@
     "default": {
             "name": "default",
             "deps": [ "purchase_insights" ],
-            "data": [ "plant_purchases.csv" ]
+            "data": [ "plant_purchases.csv", "tax_data.rel" ]
         }
 }

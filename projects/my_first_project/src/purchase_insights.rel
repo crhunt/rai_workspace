@@ -1,1 +1,8 @@
-def test = 2
+def total_pretax(total) = 
+    total = sum[name, subtotal: 
+        plant_purchases_csv(pos,:Name,name) and 
+        subtotal = plant_purchases_csv[pos,:Quantity] * plant_purchases_csv[pos,:Price]
+        from pos
+    ]
+
+def total_aftertax = total_pretax * (1.0 +  tax_rate)

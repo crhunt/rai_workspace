@@ -3,16 +3,9 @@
 # import RelationalAI: CSVFile, CSVFileSyntax
 # import RelationalAIProtocol: JSONString
 import JSON: json, parsefile
+include("./helper_functions.jl")
+
 # using RelationalAITypes: Integration
-
-# -- Get full paths from names (project name and scenario) --
-
-function get_project_path(project_name::AbstractString)
-    
-    # Turn project name string into full rel path
-    project_path = "$(pwd())/projects/$(project_name)"
-    return project_path
-end
 
 # -- Get meta data from json config files --
 
@@ -44,7 +37,7 @@ function generate_import_schema_rel(file_name::AbstractString,
     
     # Create the rel code for importing the data
     rel = ""
-    file_path = "$(project_path)/data/$(file_name)" # Path to data file
+    file_path = get_data_path(file_name, project_path) # Path to data file
     file_rel_name = file_config[file_name]["rel"]   # Rel name for data file
     rel = rel * """
         def insert[:$(file_rel_name)] = load_csv[config_$(file_rel_name)] // Insert the data
@@ -61,8 +54,8 @@ end
 
 # -- Call these functions to load data --
 
-function install_scenario_data(conn::LocalConnection, project_name::AbstractString; 
-                               scenario::AbstractString="default", via_sdk::Bool=false)
+function insert_scenario_data(conn::LocalConnection, project_name::AbstractString; 
+                              scenario::AbstractString="default")
 
     # Load all data files for a scenario
 
@@ -72,46 +65,54 @@ function install_scenario_data(conn::LocalConnection, project_name::AbstractStri
     # Determine which data files belong to the scenario
     data_file_names = project_data_filelist(project_name; scenario=scenario)
 
+    # CSV files
+    csv_file_names = [x for x in data_file_names if occursin(".csv", x)]
+    # REL files
+    rel_file_names = [x for x in data_file_names if occursin(".rel", x)]
+
     # Get project path
     project_path = get_project_path(project_name)
 
-    @info "Installing data for scenario '$(scenario)' in project '$(project_name)'."
+    @info "Inserting data for scenario '$(scenario)' in project '$(project_name)'."
     
     # Load each file
-    if via_sdk
-        # Use Julia SDK to install data
-        @info "Installing via SDK."
-        for file_name in data_file_names
-            file_path = "$(project_path)/data/$(file_name)"
-            @info "Installing $(file_name) at $(file_path)..."
-            install_source(conn; path=file_path, name=file_config[file_name]["rel"])
-            @info "...Success."
-        end
-    else
-        # Use Rel to install data
-        @info "Installing via Rel."
-        for file_name in data_file_names
-            # Create Rel code for import
-            @info "Installing $(file_name)..."
-            rel_code_string = generate_import_schema_rel(file_name,file_config,project_path)
-            # Install using Rel
-            query(conn, rel_code_string; readonly=false)
-            @info "...Success."
-        end
+
+    # Install CSV files
+    @info "Inserting CSV files via query (update mode)."
+    for file_name in csv_file_names
+        # Create Rel code for import
+        @info "Inserting $(file_name) from $(project_name)..."
+        rel_code_string = generate_import_schema_rel(file_name,file_config,project_path)
+        # Install using Rel
+        query(conn, rel_code_string; readonly=false)
+        @info "...Success."
     end
 
-    @info "Project data installed."
+    # Installing REL files
+    @info "Inserting REL files via query (update mode)."
+    rel_code_string = ""
+    for file_name in rel_file_names
+        file_path = get_source_path(file_name,project_path)
+        @info "Adding $(file_name) from $(project_name)..."
+        rel_code_string = rel_code_string * load_src(file_name, project_path)
+        @info "...Success."
+    end
+    @info "Inserting all data relations..."
+    query(conn, rel_code_string; readonly=false)
+    @info "...Success."
+
+    @info "Project data inserted."
 
 end
 
-function install_data_file(conn::LocalConnection,
+function insert_data_file(conn::LocalConnection,
                            file_name::AbstractString, 
                            project_name::AbstractString)
 
     # Install data from any single file in any project
     # The project name should be the source project for the data file
 
-    @info "Installing via Rel."
+    @info "Inserting via query (update mode)."
     @info "Installing $(file_name) from project '$(project_name)'..."
 
     # Get configuration for data files

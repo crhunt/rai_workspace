@@ -1,13 +1,6 @@
-include("./install_data.jl")
+include("./helper_functions.jl")
 
 # -- Get meta data from json config files -- 
-
-function get_source_path(file_name::AbstractString,
-                         project_path::AbstractString)
-    # File path for Rel source files
-    file_path = "$(project_path)/src/$(file_name).rel"
-    return file_path
-end
 
 function project_source_filelist(project_name::AbstractString; 
                                  scenario::AbstractString="default")
@@ -20,23 +13,6 @@ function project_source_filelist(project_name::AbstractString;
 
 end
 
-# -- Helper functions to link rel source files
-
-function load_src(file_name::AbstractString, 
-                  project_path::AbstractString)
-
-    # Set path to rel file
-    file_path = get_source_path(file_name,project_path)
-    
-    # Get source content as string
-    contents = read(file_path, String)
-    
-    # Return with comments indicating source file
-    "/* - Start of linked file: $(file_name) - */\n" *
-    contents *
-    "/* ----- End of linked file: $(file_name) ----- */\n"
-end
-
 # -- Call these functions to load rel source files
 
 function install_src_file(conn::LocalConnection,
@@ -46,7 +22,7 @@ function install_src_file(conn::LocalConnection,
     # Set path to rel file
     file_path = get_source_path(file_name,project_path)
     # Install the file
-    @info "Installing $(file_name).rel at $(file_path)..."
+    @info "Installing under source name $(file_name): $(file_name).rel at $(file_path)..."
     install_source(conn; path=file_path, name=file_name)
     @info "...Success."
 end
@@ -56,7 +32,7 @@ function install_rel(conn::LocalConnection,
                      name::AbstractString="source")
 
     # Install the file
-    @info "Installing $(name)..."
+    @info "Installing under source name $(name)..."
     install_source(conn, name, rel_string)
     @info "...Success."
 end
