@@ -1,0 +1,14 @@
+{
+    "issues-formatted.json": {
+        "rel": "json_issues",
+        "optional": false
+    },
+    "labels-formatted.json": {
+        "rel": "json_labels",
+        "optional": false
+    },
+    "milestones-formatted.json": {
+        "rel": "json_milestones",
+        "optional": false
+    }
+}

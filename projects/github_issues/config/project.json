@@ -1,0 +1,14 @@
+{
+    "default": {
+            "name": "default",
+            "deps": [ "github-model" ],
+            "data": [ "issues-formatted.json", "labels-formatted.json", 
+                      "milestones-formatted.json" ]
+        },
+    "insights": {
+            "name": "insights",
+            "deps": [ "github-model", "github-insights" ],
+            "data": [ "issues-formatted.json", "labels-formatted.json", 
+                      "milestones-formatted.json" ]
+        }
+}
