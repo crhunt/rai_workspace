@@ -148,10 +148,17 @@ function query_scenario(relations::Array{Symbol};
                         project_name::String=current_project,
                         scenario::AbstractString=current_scenario,
                         dbname::Symbol=current_dbname,
-                        rel::AbstractString="")
+                        rel::AbstractString="",
+                        from_file::String="")
     
     # Check overrides on global settings
     conn = check_conn(project_name,scenario,dbname)
+
+    # Get query from a file
+    if length(from_file) > 0
+        project_path = get_project_path(project_name)
+        rel = rel * "\n" * load_src(from_file, project_path)
+    end
 
     # Perform the query
     results = query(conn, rel; outputs=relations)

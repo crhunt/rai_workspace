@@ -31,15 +31,14 @@ end
 
 # -- Create the Rel code necessary to install a file --
 
-function generate_import_schema_rel(file_name::AbstractString,
-                                    file_config::AbstractDict,
-                                    project_path::AbstractString)
+function csv_import_schema_rel(file_name::AbstractString,
+                               file_config::AbstractDict,
+                               project_path::AbstractString)
     
     # Create the rel code for importing the data
-    rel = ""
     file_path = get_data_path(file_name, project_path) # Path to data file
     file_rel_name = file_config[file_name]["rel"]   # Rel name for data file
-    rel = rel * """
+    rel = """
         def insert[:$(file_rel_name)] = load_csv[config_$(file_rel_name)] // Insert the data
         def config_$(file_rel_name)[:path] = "$(file_path)"              // Path to data
         """
@@ -48,6 +47,21 @@ function generate_import_schema_rel(file_name::AbstractString,
             def config_$(file_rel_name)[:schema,:$(col["name"])] = "$(col["type"])" // Data type for column
             """
     end
+
+    return rel
+end
+
+function json_import_schema_rel(file_name::AbstractString,
+                                file_config::AbstractDict,
+                                project_path::AbstractString)
+
+    # Create the rel code for importing the data
+    file_path = get_data_path(file_name, project_path) # Path to data file
+    file_rel_name = file_config[file_name]["rel"]   # Rel name for data file
+    rel = """
+        def insert[:$(file_rel_name)] = load_json[config_$(file_rel_name)] // Insert the data
+        def config_$(file_rel_name)[:path] = "$(file_path)"              // Path to data
+        """
 
     return rel
 end
@@ -67,6 +81,8 @@ function insert_scenario_data(conn::LocalConnection, project_name::AbstractStrin
 
     # CSV files
     csv_file_names = [x for x in data_file_names if occursin(".csv", x)]
+    # JSON files
+    json_file_names = [x for x in data_file_names if occursin(".json", x)]
     # REL files
     rel_file_names = [x for x in data_file_names if occursin(".rel", x)]
 
@@ -77,18 +93,29 @@ function insert_scenario_data(conn::LocalConnection, project_name::AbstractStrin
     
     # Load each file
 
-    # Install CSV files
+    # Insert CSV files
     @info "Inserting CSV files via query (update mode)."
     for file_name in csv_file_names
         # Create Rel code for import
-        @info "Inserting $(file_name) from $(project_name)..."
-        rel_code_string = generate_import_schema_rel(file_name,file_config,project_path)
+        @info "--> Inserting $(file_name) from $(project_name)..."
+        rel_code_string = csv_import_schema_rel(file_name,file_config,project_path)
         # Install using Rel
         query(conn, rel_code_string; readonly=false)
         @info "...Success."
     end
 
-    # Installing REL files
+    # Insert JSON files
+    @info "Inserting JSON files via query (update mode)."
+    for file_name in json_file_names
+        # Create Rel code for import
+        @info "--> Inserting $(file_name) from $(project_name)..."
+        rel_code_string = json_import_schema_rel(file_name,file_config,project_path)
+        # Install using Rel
+        query(conn, rel_code_string; readonly=false)
+        @info "...Success."
+    end
+
+    # Insert REL files
     @info "Inserting REL files via query (update mode)."
     rel_code_string = ""
     for file_name in rel_file_names
@@ -97,7 +124,7 @@ function insert_scenario_data(conn::LocalConnection, project_name::AbstractStrin
         rel_code_string = rel_code_string * load_src(file_name, project_path)
         @info "...Success."
     end
-    @info "Inserting all data relations..."
+    @info "--> Inserting all data relations..."
     query(conn, rel_code_string; readonly=false)
     @info "...Success."
 
@@ -120,7 +147,7 @@ function insert_data_file(conn::LocalConnection,
     # Get project path
     project_path = get_project_path(project_name)
     # Create Rel code for import
-    rel_code_string = generate_import_schema_rel(file_name,file_config,project_path)
+    rel_code_string = csv_import_schema_rel(file_name,file_config,project_path)
     # Install using Rel
     query(conn, rel_code_string; readonly=false)
 
