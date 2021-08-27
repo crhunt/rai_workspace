@@ -50,7 +50,7 @@ function set_project(project_name::String; scenario::AbstractString="default",
     println("Set database for project/scenario to: :$(current_dbname)")
     
     # Recreate DB
-    if create_db 
+    if create_db || overwrite
         create_database(current_conn; overwrite=overwrite)
         overwrite ? println("Database created with dbname: :$(current_dbname)\nDatabase :$(current_dbname) overwritten.") : 
                     println("Database created with dbname: $(current_dbname)")
@@ -106,8 +106,8 @@ end
 # -- Install IDB --
 
 function install_scenario(project_name::String=current_project, 
-                    scenario::AbstractString=current_scenario,
-                    dbname::Symbol=current_dbname, sequential::Bool=false)
+                          scenario::AbstractString=current_scenario,
+                          dbname::Symbol=current_dbname, sequential::Bool=false)
     
     # Check overrides on global settings
     conn = check_conn(project_name,scenario,dbname)
@@ -115,6 +115,28 @@ function install_scenario(project_name::String=current_project,
     # Install Rel files
     install_scenario_src(conn, project_name; 
                          scenario=scenario, sequential=sequential)
+end
+
+function reinstall_scenario(project_name::String=current_project, 
+                            scenario::AbstractString=current_scenario,
+                            dbname::Symbol=current_dbname, sequential::Bool=false)
+
+    # Check overrides on global settings
+    conn = check_conn(project_name,scenario,dbname)
+
+    # Install Rel files
+    reinstall_scenario_src(conn, project_name; 
+                           scenario=scenario, sequential=sequential)
+end
+
+function list_scenario_source(project_name::String=current_project, 
+                              scenario::AbstractString=current_scenario,
+                              dbname::Symbol=current_dbname)
+    
+    # Check overrides on global settings
+    conn = check_conn(project_name,scenario,dbname)
+    # List sources
+    list_source(conn)
 end
 
 # -- Query scenario --

@@ -36,5 +36,5 @@ contents = read(file_path, String)
 # Return with comments indicating source file
 "/* - Start of linked file: $(file_name) - */\n" *
 contents *
-"/* ----- End of linked file: $(file_name) ----- */\n"
+"\n/* ----- End of linked file: $(file_name) ----- */\n"
 end

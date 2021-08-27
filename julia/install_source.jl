@@ -66,3 +66,25 @@ function install_scenario_src(conn::LocalConnection, project_name::AbstractStrin
         install_rel(conn,rel;name="$(project_name)_$(scenario)")
     end
 end
+
+function reinstall_scenario_src(conn::LocalConnection, project_name::AbstractString; 
+                                scenario::AbstractString="default", sequential::Bool=false)
+    
+    # List sources
+    sources = list_source(conn)
+    # Sources not from raicode
+    scenario_srcs = [k for k in keys(sources) if !occursin(ENV["RAI_PATH"],sources[k].path)]
+
+    # Delete sources
+    @info "Deleting sources for scenario '$(scenario)' in project '$(project_name)'"
+    for srcname in scenario_srcs
+        @info "Deleting source $(srcname)..."
+        delete_source(conn, srcname)
+        @info "...Complete."
+    end
+
+    # Install sources
+    install_scenario_src(conn,project_name;scenario=scenario,sequential=sequential)
+
+
+end
