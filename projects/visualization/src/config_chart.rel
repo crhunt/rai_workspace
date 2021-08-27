@@ -1,0 +1,86 @@
+/* Adding data to configuration */
+/*
+@inline
+def create_chart[:data,DATA,xfield,yfield] = 
+    {:data, :[], 1, :values, :[], i, {(:xfield, x); (:yfield, y); (:c,0);}}
+    from i, p, x, y where 
+        sort[DATA[yfield]](i, p, y) and
+        DATA(xfield,p,x)
+
+@inline
+def create_chart[:data,:multiy,DATA,xfield,YLIST] = 
+    {:data, :[], 1, :values, :[], i, {(:xfield, x); (:yfield, y); (:c,fi);}}
+	from i,fi,p,x,y where
+		sort[fii,pp,yy: DATA[f](pp,yy) and YLIST(fii,f) from f](i,fi,p,y) and
+		DATA[xfield](p,x)
+
+
+@inline
+def create_chart[:data,:multiy,:color,DATA,xfield,YLIST,COLOR] = 
+    {:data, :[], 1, :values, :[], i, {(:xfield, x); (:yfield, y); (:c,c);}}
+	from i,fi,p,x,y,c where
+		sort[fii,pp,yy: DATA[f](pp,yy) and YLIST(fii,f) from f](i,fi,p,y) and
+		DATA[xfield](p,x) and
+		COLOR[YLIST[fi]](c)
+*/
+/*
+@inline
+def create_chart[:data,DATA,xfield,YLIST] = 
+    {:data, :[], 1, :values, :[], i, {(:xfield, x); (:yfield, y);}}
+	from i,p,x,y where
+		exists(fi...: sort[fii...,pp,yy: DATA(f,pp,yy) and YLIST(fii...,f) from f](i,fi...,p,y)) and
+		DATA[xfield](p,x)
+*/
+/*
+@inline
+def create_chart[:data,DATA,xfield,YLIST] = 
+    {:data, :[], 1, :values, :[], i, {(:xfield, x); (:yfield, y); (:c, fi...);}}
+	from i,c,p,x,y,fi... where
+		sort[fii...,pp,yy: DATA(f,pp,yy) and YLIST(fii...,f) from f](i,fi...,p,y) and
+		DATA[xfield](p,x)
+*/
+
+@inline
+def string_relname(s,r) = relname_string(r,s)
+
+@inline
+def sym_sort[R] = sort[i...,s: R(i...,v) and relname_string(v,s) from v]
+
+@inline
+def create_chart[:data,DATA,xfield,YLIST] = 
+    {:data, :[], 1, :values, :[], i, {(:xfield, x); (:yfield, y); (:c, fi...);}}
+	from i,c,p,x,y,fi... where
+		sort[fii...,pp,yy: DATA(string_relname[f],pp,yy) and sym_sort[YLIST](fii...,f) from f](i,fi...,p,y) and
+		DATA[xfield](p,x)
+
+/* Insert chart size */
+
+@inline
+def create_chart[:width,val] = {:width, val}
+
+@inline
+def create_chart[:height,val] = {:height, val}
+
+/* Mark properties */
+
+@inline
+def create_chart[:mark,:fill,val] = {:marks,:[], 1, :encode, :update, :fill, :value, val}
+
+/* Axes */
+
+@inline
+def create_chart[:axes,axlabel,param,val] = {:axes, :[], position, param, val}
+	from position where {(:bottom,1);(:left,2);(:top,3);(:right,4);}(axlabel,position)
+
+/* Title */
+
+@inline
+def create_chart[:title,val] = {:title, :text, val}
+
+@inline
+def create_chart[:title,:signal,val] = {:title, :text, :signal, val}
+
+/* Merge charts */
+
+@inline
+def create_chart[:complete,P,CH] = P <++ CH

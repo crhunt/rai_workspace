@@ -1,0 +1,13 @@
+{
+    "default": {
+            "name": "default",
+            "deps": [ "config_chart" ],
+            "data": [ "vega_line_chart.json", "vega_bar_chart.json",
+                      "vega_bar_chart_simple.json" ]
+    },
+    "custom": {
+        "name": "custom",
+        "deps": [ "config_line_plot" ],
+        "data": [ "line_plot.json" ]
+}
+}

@@ -1,0 +1,18 @@
+{
+    "line_chart.json": {
+        "rel": "line_chart",
+        "optional": false
+    },
+    "vega_line_chart.json": {
+        "rel": "line_chart",
+        "optional": false
+    },
+    "vega_bar_chart.json": {
+        "rel": "bar_chart",
+        "optional": false
+    },
+    "vega_bar_chart_simple.json": {
+        "rel": "simple_bar_chart",
+        "optional": false
+    }
+}
