@@ -1,14 +1,18 @@
+/** Vega utilities
+  *
+  */
+
 /** Adding data to configuration 
   *
   * Note: Helper functions necessary because sort[R] does not yet support symbols in R.
   *
   * Examples:
-  * 1)
+  * 1)  Simple x/y
   * 	def my_chart = chart_config:data[ mydata, :x, :y ]
-  * 2)
+  * 2)  Ordered multi-y
   * 	def yfield = {(1,:y2);(2,:y1);}
   * 	def my_chart = chart_config:data[ mydata, :x, yfield ]
-  * 3)
+  * 3)  Unordered multi-y
   * 	def yfield = {:y1; :y2;}
   * 	def my_chart = chart_config:data[ mydata, :x, yfield ]
   *
