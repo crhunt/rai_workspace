@@ -1,0 +1,60 @@
+/** Adding data to configuration 
+  *
+  * Note: Helper functions necessary because sort[R] does not yet support symbols in R.
+  *
+  * Examples:
+  * 1)
+  * 	def my_chart = chart_config:data[ mydata, :x, :y ]
+  * 2)
+  * 	def yfield = {(1,:y2);(2,:y1);}
+  * 	def my_chart = chart_config:data[ mydata, :x, yfield ]
+  * 3)
+  * 	def yfield = {:y1; :y2;}
+  * 	def my_chart = chart_config:data[ mydata, :x, yfield ]
+  *
+  */
+
+@inline
+def string_relname(s,r) = relname_string(r,s)
+@inline
+def sym_sort[R] = sort[i...,s: R(i...,v) and relname_string(v,s) from v]
+
+@inline
+module chart_config
+
+	/* Adding data to configuration 
+	   Note: Helper functions necessary because sort[R] does not yet support symbols in R.
+	*/
+	def data[DATA,xfield,YLIST] = 
+		{:data, :[], 1, :values, :[], i, {(:xfield, x); (:yfield, y); (:c, fi...);}}
+		from i,c,p,x,y,fi... where
+			DATA[xfield](p,x) and
+			sort[fii...,pp,yy: DATA(string_relname[f],pp,yy) and 
+			                   sym_sort[YLIST](fii...,f) from f](i,fi...,p,y)
+	
+	/* Insert chart size */
+	def width[val] = {:width, val}
+	def height[val] = {:height, val}
+
+	/* Axes */
+	def axes[axlabel,param,val] = {:axes, :[], position, param, val}
+		from position where {(:bottom,1);(:left,2);(:top,3);(:right,4);}(axlabel,position)
+	
+	/* Title */
+	def title[:signal,val] = {:title, :text, :signal, val}
+	def title[val] = {:title, :text, val}
+
+	/* Fonts */
+	def font[:size,val] = {:text,:fontsize,val}
+
+	/* Color Palette */
+	def palette[val] = { (:scales, :[], 3, :scheme, val); }
+
+	/* Marks */
+	@inline
+	def mark[:fill,val] = {:marks,:[], 1, :encode, :update, :fill, :value, val}
+
+	/* Merge chart with template */
+	def template[P,CH] = P <++ CH
+
+end

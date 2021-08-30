@@ -1,7 +1,7 @@
 {
     "default": {
             "name": "default",
-            "deps": [ "config_chart" ],
+            "deps": [ "chart_config" ],
             "data": [ "vega_line_chart.json", "vega_bar_chart.json",
                       "vega_bar_chart_simple.json" ]
     },

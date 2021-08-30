@@ -3,9 +3,38 @@ def mydata = {(:x, 1, 0.0); (:x, 2, 0.5); (:x, 3, 1.0);
               (:y2, 1, 2.0); (:y2, 2, 4.0); (:y2, 3, 0.0);
               (:y3, 1, 3.0); (:y3, 2, 1.0); (:y3, 3, 2.0);}
 
-def yfield = {(1,:y1);(2,:y2);}
-def cfield = {(:y1,2);(:y2,3);}
+/* Ex 1: Simplest line chart */
+def my_line_chart_1 = line_chart
+def my_line_chart_1 = chart_config:data[mydata,:x,:y1]
 
+/* Ex 2: Multi-y */
+def my_line_chart_2 = line_chart
+def my_line_chart_2 = chart_config:data[mydata,:x,{ :y1; :y2 }]
 
-def my_line_chart = line_chart
-def my_line_chart = create_chart[:data,:multiy,:color,mydata,:x,yfield,cfield]
+/* Ex 3: Ordered multi-y, with title */
+def yfield = {(1,:y2);(2,:y1);}
+def my_line_chart_3 = chart_config:title["My line chart"]
+def my_line_chart_3 = chart_config:template[my_line_chart_3,line_chart]
+def my_line_chart_3 = chart_config:data[mydata,:x,yfield]
+
+/* Ex 4: Axes labels, interactive title */
+def my_line_chart_4 = chart_config:title[:signal,"'My ' + interpolate + ' interpolated line chart'"]
+def my_line_chart_4 = chart_config:axes[:bottom,:title,"X-Axis"]
+def my_line_chart_4 = chart_config:axes[:left,:title,"Y-Axis"]
+def my_line_chart_4 = chart_config:template[my_line_chart_4,line_chart]
+def my_line_chart_4 = chart_config:data[mydata,:x,yfield]
+
+/* Ex 5: Bar chart */
+def my_bar_chart_1 = chart_config:axes[:bottom,:title,"X-Axis"]
+def my_bar_chart_1 = chart_config:axes[:left,:title,"Y-Axis"]
+def my_bar_chart_1 = chart_config:template[my_bar_chart_1,bar_chart]
+def my_bar_chart_1 = chart_config:data[mydata,:x,:y1]
+
+/* Ex 6: Bar chart with custom size, mark color */
+def my_bar_chart_2 = chart_config:axes[:bottom,:title,"X-Axis"]
+def my_bar_chart_2 = chart_config:axes[:left,:title,"Y-Axis"]
+def my_bar_chart_2 = chart_config:mark[:fill,"blue"]
+def my_bar_chart_2 = chart_config:width[300]
+def my_bar_chart_2 = chart_config:height[300]
+def my_bar_chart_2 = chart_config:template[my_bar_chart_2,bar_chart]
+def my_bar_chart_2 = chart_config:data[mydata,:x,:y1]
