@@ -228,6 +228,14 @@ The optional arguments are:
 
 Relations defined with the `rel` argument will not be installed.
 
+### Reinstall a scenario
+
+Delete all non-raicode EDB's and reinstall the current scenario. This is useful if you are developing IDB code and want to iteratively test changes.
+
+```julia
+julia> reinstall_scenario()
+```
+
 ### Replace a relation
 
 Relations created by running `insert_data` (EDB relations) can be changed with one-time updates. The helper function `replace_relation` creates Rel code and runs a query call to delete a relation and replace it with a relation of the same name, with a new definition.
