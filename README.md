@@ -1,8 +1,8 @@
 # RAI Workspace
 
-This workspace is designed as a generic harnass for creating, populating, and querying RAI databases, using the RAI SDK.
+This workspace is designed as a generic app for creating, populating, and querying RAI databases, using the RAI SDK.
 
-The goal of this harnass is to test-out the RAI SDK and to facilitate testing Rel behavior. It is currently implemented with the Julia SDK only.
+The goal of this app is to test-out the RAI SDK and to facilitate testing Rel behavior. It is currently implemented with the Julia SDK only.
 
 Current capabilities:
 - Start a local server, and create or access a local database
