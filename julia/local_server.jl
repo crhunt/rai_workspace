@@ -1,5 +1,3 @@
-# Creates a local RAI server
-
 if use_binary
     function startup_server()
         # To use tracing:
@@ -9,13 +7,17 @@ if use_binary
         sleep(5)
     end
     shutdown_server() = run(`pkill rai-server`)
-elseif use_external_server
-    startup_server() = nothing
-    shutdown_server() = nothing
-else
+elseif use_local_server
+    println("Load RAI...")
+    Pkg.activate((ENV["RAI_PATH"]))
+    using RAI.Server
+    import RAI.API: CSVString, JSONString
     # To use tracing:
     # rai_server = RAIServer(Server.Configuration(; tracing=:print ))
     rai_server = RAIServer(Server.Configuration(; profile=:functions ))
     startup_server() = @async start!(rai_server)
     shutdown_server() = stop!(rai_server)
+else
+    startup_server() = nothing
+    shutdown_server() = nothing
 end

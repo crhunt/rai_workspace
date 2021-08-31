@@ -14,7 +14,11 @@ global current_dbname = :default
 function get_db_conn(dbname::Symbol=:default)
     # Create local connection 
     # TO DO: Add report argument for reporting
-    conn = LocalConnection(dbname=dbname)
+    if ! isequal(current_mgmt_conn,missing)
+        conn = CloudConnection(management_conn=current_mgmt_conn, dbname=dbname, compute_name=Symbol(current_compute_name))
+    else
+        conn = LocalConnection(dbname=dbname)
+    end
 end
 
 function set_dbname(dbname::Symbol, 
