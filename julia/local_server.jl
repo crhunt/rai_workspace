@@ -1,4 +1,4 @@
-if use_binary
+if current_server_type == "binary-server"
     function startup_server()
         # To use tracing:
         # run(`bash -c "rai-server server --tracing print &"`)
@@ -7,7 +7,7 @@ if use_binary
         sleep(5)
     end
     shutdown_server() = run(`pkill rai-server`)
-elseif use_local_server
+elseif current_server_type == "local-server"
     println("Load RAI...")
     Pkg.activate((ENV["RAI_PATH"]))
     using RAI.Server

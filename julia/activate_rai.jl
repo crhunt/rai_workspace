@@ -13,24 +13,28 @@ global current_mgmt_conn = missing
 #global current_compute_name = "rai-workspace-xs"
 global current_compute_name = "rai-workspace-$(string(today()))-xs"
 
+binary_server = "binary-server"
+remote_server = "remote-server"
+local_server = "local-server"
+
 function set_server(server_type::String;
                     profile::AbstractString="default",
                     compute_name::AbstractString=current_compute_name)
     
     global current_server_type = server_type
-    
-    use_binary_server = ( current_server_type == "binary-server" )
-    use_local_server = ( current_server_type == "local-server" )
-    use_remote_server = ( current_server_type == "remote-server" )
 
-    if ( use_local_server || use_binary_server )
+    if ( current_server_type == local_server || current_server_type == binary_server )
         include("julia/local_server.jl")
         global current_mgmt_conn = missing
         startup_server()
-    elseif use_remote_server
+    elseif current_server_type == remote_server
+        # Verify SSL? Yes if default profile
         verify_ssl = profile === "default" ? true : false
+        # Set management connection
         global current_mgmt_conn = ManagementConnection(; profile=profile, verify_ssl=verify_ssl)
+        # Set global compute name
         global current_compute_name = compute_name
+        # Print status
         println("Profile: $(profile)")
         println("Verify SSL: $(verify_ssl)")
         println("Compute name: $(current_compute_name)")
@@ -41,10 +45,13 @@ function set_server(server_type::String;
         if !occursin(current_compute_name,computes)
             @warn "Compute $(current_compute_name) not found in provisioned computes."
         end
+    else
+        @warn "Server type not recognized. Specify: 'binary-server', 'local-server', or 'remote-server'."
     end
 
 end
 
+"""
 function shutdown_server()
     if current_server_type == "binary-server"
         run(`pkill rai-server`)
@@ -53,5 +60,6 @@ function shutdown_server()
         stop!(rai_server)
     end
 end
+"""
 
-"""Including activate_rai.jl"""
+println("Including activate_rai.jl")
