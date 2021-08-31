@@ -5,17 +5,18 @@ This workspace is designed as a generic harnass for creating, populating, and qu
 The goal of this harnass is to test-out the RAI SDK and to facilitate testing Rel behavior. It is currently implemented with the Julia SDK only.
 
 Current capabilities:
-- Start a local server, create a local database
-- Populate the database by installing data from files and defining relations with Rel
+- Start a local server, and create or access a local database
+- Connect to a remote server, and create or access a remote database
+- Populate the database by installing data from local files and defining relations with Rel
 - Query the database with custom queries or by querying installed relations
 - **Projects** specified by configuration files (a project contains Rel files, data source files, and configuration information for the data and project scenarios)
 - Within each project, **scenarios** specified by a configuration file (containing subsets of a project's Rel files and data source files)
-- Data loading: csv file support
+- Data loading: csv, json, and rel file support
 - Loading individual data or Rel files outside of the project's scope
 
 Upcoming capabilities:
+- Python SDK support
 - Benchmarking of scenarios
-- Data loading: json file support
 - Data export
 
 ## Organization
@@ -25,12 +26,12 @@ The two top-level directories are `/julia` for processing configuration files an
 ```
 workspace/
 ├── julia/
-|   ├── activate_rai.jl     Start a RAI server
+|   ├── activate_rai.jl     Connect to a RAI server or start a local RAI server
 |   ├── deploy.jl           User-level functions for installing and querying data
 |   ├── helper_functions.jl Helper functions used by insert_data and install_source
 |   ├── insert_data.jl      Functions for inserting data from a data file
 |   ├── install_source.jl   Functions for installing relations from a Rel file
-|   └── rai_server.jl       Helper functions for starting a RAI server
+|   └── local_server.jl       Helper functions for starting a local RAI server
 └── projects/
     ├── {{ project name }}           Name of the project
     |   ├── config/
@@ -47,22 +48,68 @@ workspace/
 
 ## How to run the workspace
 
-### Start a RAI server
-
 The Julia SDK is currently linked to raicode. You must have a local raicode build to use this workspace, even if you plan to use a remote RAI server.
 
-1. Navigate to the workspace directory and start a Julia session
+To begin, start a Julia environment in the workspace directory and ensure you have a path to the Julia SDK. (This currently requires a local version of raicode or the binary.)
+
+1. Navigate to the workspace directory and start a Julia session,
 ```bash
 path/to/workspace$ julia
 ```
-2. Provide the path to RAI
+2. Provide the path to RAI,
 ```julia
 julia> ENV["RAI_PATH"] = "/path/to/raicode"
 ```
+You may also set this elsewhere, for example in your `~/.bashrc`.
 
-3. Start the RAI server locally
+3. Include `activate_rai.jl`,
 ```julia
 julia> include("julia/activate_rai.jl")
+```
+
+4. Include `deploy.jl` to access user functions for interacting with the server.
+
+```julia
+julia> include("julia/deploy.jl")
+```
+
+### Connect to a remote RAI server
+
+Connect to a remote server with,
+```julia
+julia> set_server("remote-server")
+```
+
+This command will set the Management Connection. You can optionally specify the profile you would like to use and the compute as well:
+
+```julia
+function set_server(server_type::String;
+                    profile::AbstractString="default",
+                    compute_name::AbstractString=current_compute_name)
+```
+
+If you do not specify the `compute_name` it will default to `rai-workspace-YYYY-MM-DD-xs`, with the current date. Note that this does not _create_ the compute, merely specifies which _already provisioned_ compute to connect with.
+
+The profile you specify should be listed in your `~/.rai/config` file. The config will look something like:
+
+```
+[default]
+region = us-east
+host = azure.relationalai.com
+port = 443
+access_key = abcdefgh-####-####-####-############
+private_key_filename = abcdefgh-privatekey.json
+infra = AZURE
+```
+And the private key, `abcdefgh-privatekey.json` should go in the same folder.
+
+If you do not have credentials for a UI Account, request them via creating an issue in the `relationalai-infra` repo.
+
+### Start a local RAI server
+
+Start the local server with,
+```julia
+julia> set_server("local-server")
 ```
 
 If the server starts successfully, the last message you should see will look something like:
@@ -73,12 +120,13 @@ julia> ┌ Info: 2021-08-13T09:29:30.921
 └ [SERVER] Enter event loop on 127.0.0.1:8010.
 ```
 
-4. Include `deploy.jl` to access user functions for interacting with the server.
+### Set the project and scenario
+
+Include `deploy.jl` to access user functions for interacting with the server.
+
 ```julia
 julia> include("julia/deploy.jl")
 ```
-
-### Set the project and scenario
 
 The project and scenario are set saved as global variables. Once they are set, they will serve as
 default values for loading data and relations. Use `set_project` to assign. The only information you must pass is the project name.
