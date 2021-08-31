@@ -1,6 +1,6 @@
 # RAI Workspace
 
-This workspace is designed as a generic harnass for creating, populating, and querying databases on a local RAI server, using the RAI SDK. It will be extended to cover cloud-based servers and remote data storage.
+This workspace is designed as a generic harnass for creating, populating, and querying RAI databases, using the RAI SDK.
 
 The goal of this harnass is to test-out the RAI SDK and to facilitate testing Rel behavior. It is currently implemented with the Julia SDK only.
 
@@ -32,21 +32,22 @@ workspace/
 |   ├── insert_data.jl      Functions for inserting data from a data file
 |   ├── install_source.jl   Functions for installing relations from a Rel file
 |   └── local_server.jl       Helper functions for starting a local RAI server
-└── projects/
-    ├── {{ project name }}           Name of the project
-    |   ├── config/
-    |   |   ├── data_import.json     Configuration file for all data files in the project
-    |   |   └── project.json         Configuration file for all scenarios in the project 
-    |   ├── data/
-    |   |   ├── {{ data file }}.csv  Data file (csv supported currently)
-    |   |   └── ...
-    |   └── src/
-    |   |   ├── {{ Rel file }}.rel   Rel file (extension ".rel" expected)
-    |   |   └── ...
-    └── ...
+├── projects/
+|   ├── {{ project name }}           Name of the project
+|   |   ├── config/
+|   |   |   ├── data_import.json     Configuration file for all data files in the project
+|   |   |   └── project.json         Configuration file for all scenarios in the project 
+|   |   ├── data/
+|   |   |   ├── {{ data file }}.csv  Data file (csv supported currently)
+|   |   |   └── ...
+|   |   └── src/
+|   |   |   ├── {{ Rel file }}.rel   Rel file (extension ".rel" expected)
+|   |   |   └── ...
+|   └── ...
+└── README.md
 ```
 
-## How to run the workspace
+## Get started
 
 The Julia SDK is currently linked to raicode. You must have a local raicode build to use this workspace, even if you plan to use a remote RAI server.
 
@@ -72,7 +73,7 @@ julia> include("julia/activate_rai.jl")
 ```julia
 julia> include("julia/deploy.jl")
 ```
-
+## Connect to a server
 ### Connect to a remote RAI server
 
 Connect to a remote server with,
@@ -120,7 +121,8 @@ julia> ┌ Info: 2021-08-13T09:29:30.921
 └ [SERVER] Enter event loop on 127.0.0.1:8010.
 ```
 
-### Set the project and scenario
+## Workflow
+### 1. Set the project and scenario
 
 Include `deploy.jl` to access user functions for interacting with the server.
 
@@ -151,7 +153,7 @@ The optional arguments are:
 - **create_db**: If true, create a new database if dbname does not exist.
 - **overwrite**: If true, overwrite database specified by dbname.
 
-### Load data for a scenario
+### 2. Load data for a scenario
 
 Insert the scenario data by executing `insert_data()`. You must first define the project and scenario with `set_project` before executing.
 
@@ -214,11 +216,7 @@ The optional arguments are:
 - **create_db**: If true, create a new database if dbname does not exist.
 - **overwrite**: If true, overwrite database specified by dbname.
 
-### Load data from a single file
-
-This is not yet exposed in deploy.jl.
-
-### Install relations for a scenario
+### 3. Install relations for a scenario
 
 As with inserting data, you must first define the project and scenario with `set_project` before executing.
 
@@ -242,6 +240,10 @@ The optional arguments are:
 - **dbname**: Name for the database.
 - **sequential**: If true, each .rel file will be installed sequentially in the order that it appears in the project config. If false, all .rel files will be joined as a single program and installed in a single transaction.
 
+## Other helper functions
+### Load data from a single file
+
+This is not yet exposed in deploy.jl.
 ### Query a scenario
 
 You must provide names for the relations to query (as symbols) and the project name.
