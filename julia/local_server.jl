@@ -1,3 +1,7 @@
+using RAI.Server
+import RAI.API: CSVString, JSONString
+
+
 if current_server_type == "binary-server"
     function startup_server()
         # To use tracing:
@@ -10,8 +14,6 @@ if current_server_type == "binary-server"
 elseif current_server_type == "local-server"
     println("Load RAI...")
     Pkg.activate((ENV["RAI_PATH"]))
-    using RAI.Server
-    import RAI.API: CSVString, JSONString
     # To use tracing:
     # rai_server = RAIServer(Server.Configuration(; tracing=:print ))
     rai_server = RAIServer(Server.Configuration(; profile=:functions ))
@@ -21,3 +23,5 @@ else
     startup_server() = nothing
     shutdown_server() = nothing
 end
+
+startup_server()

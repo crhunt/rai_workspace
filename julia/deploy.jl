@@ -89,7 +89,7 @@ end
 
 # -- Install EDB --
 
-function insert_data(project_name::String=current_project, 
+function insert_data(; project_name::String=current_project, 
                       scenario::AbstractString=current_scenario,
                       dbname::Symbol=current_dbname, create_db::Bool=false, 
                       overwrite::Bool=true)
@@ -109,7 +109,7 @@ end
 
 # -- Install IDB --
 
-function install_scenario(project_name::String=current_project, 
+function install_scenario(; project_name::String=current_project, 
                           scenario::AbstractString=current_scenario,
                           dbname::Symbol=current_dbname, sequential::Bool=false)
     
@@ -121,7 +121,7 @@ function install_scenario(project_name::String=current_project,
                          scenario=scenario, sequential=sequential)
 end
 
-function reinstall_scenario(project_name::String=current_project, 
+function reinstall_scenario(; project_name::String=current_project, 
                             scenario::AbstractString=current_scenario,
                             dbname::Symbol=current_dbname, sequential::Bool=false)
 
@@ -133,7 +133,7 @@ function reinstall_scenario(project_name::String=current_project,
                            scenario=scenario, sequential=sequential)
 end
 
-function list_scenario_source(project_name::String=current_project, 
+function list_scenario_source(; project_name::String=current_project, 
                               scenario::AbstractString=current_scenario,
                               dbname::Symbol=current_dbname)
     

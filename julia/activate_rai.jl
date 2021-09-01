@@ -26,7 +26,6 @@ function set_server(server_type::String;
     if ( current_server_type == local_server || current_server_type == binary_server )
         include("julia/local_server.jl")
         global current_mgmt_conn = missing
-        startup_server()
     elseif current_server_type == remote_server
         # Verify SSL? Yes if default profile
         verify_ssl = profile === "default" ? true : false
@@ -50,16 +49,5 @@ function set_server(server_type::String;
     end
 
 end
-
-"""
-function shutdown_server()
-    if current_server_type == "binary-server"
-        run(`pkill rai-server`)
-    elseif current_server_type == "local-server"
-        rai_server = RAIServer(Server.Configuration(; profile=:functions ))
-        stop!(rai_server)
-    end
-end
-"""
 
 println("Including activate_rai.jl")

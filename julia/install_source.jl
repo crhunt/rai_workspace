@@ -64,6 +64,8 @@ function install_scenario_src(conn::LocalConnection, project_name::AbstractStrin
             rel = rel * load_src(src_file,project_path)
         end
         install_rel(conn,rel;name="$(project_name)_$(scenario)")
+        sourcelist = join(src_file_names, ", ", ", and ")
+        println("Installed files: $(sourcelist).")
     end
 end
 
