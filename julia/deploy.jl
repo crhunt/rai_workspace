@@ -92,7 +92,7 @@ end
 function insert_data(; project_name::String=current_project, 
                       scenario::AbstractString=current_scenario,
                       dbname::Symbol=current_dbname, create_db::Bool=false, 
-                      overwrite::Bool=true)
+                      overwrite::Bool=true, as_string::Bool=false)
 
     # Check overrides on global settings
     conn = check_conn(project_name,scenario,dbname)
@@ -104,7 +104,7 @@ function insert_data(; project_name::String=current_project,
     end
 
     # Install data
-    insert_scenario_data(conn, project_name; scenario=scenario)
+    insert_scenario_data(conn, project_name; scenario=scenario, as_string=as_string)
 end
 
 # -- Install IDB --
@@ -167,6 +167,7 @@ function pretty_print_query(relations::Array{Symbol}, results::RelationalAITypes
             """)
         end
     end
+    return rel_map
 
 end
 

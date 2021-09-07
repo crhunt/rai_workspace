@@ -36,6 +36,7 @@ function csv_import_schema_rel(file_name::AbstractString,
                                project_path::AbstractString)
     
     # Create the rel code for importing the data
+    # TO DO: integration support
     file_path = get_data_path(file_name, project_path) # Path to data file
     file_rel_name = file_config[file_name]["rel"]   # Rel name for data file
     rel = """
@@ -58,20 +59,69 @@ function json_import_schema_rel(file_name::AbstractString,
     # Create the rel code for importing the data
     file_path = get_data_path(file_name, project_path) # Path to data file
     file_rel_name = file_config[file_name]["rel"]   # Rel name for data file
-    rel = """
-        def insert[:$(file_rel_name)] = load_json[config_$(file_rel_name)] // Insert the data
-        def config_$(file_rel_name)[:path] = "$(file_path)"              // Path to data
-        """
+    
+    """
+    def delete[:$(file_rel_name)](v...) = $(file_rel_name)(v...)
+    def insert[:$(file_rel_name)] = load_json[config_$(file_rel_name)] // Insert the data
+    def config_$(file_rel_name)[:path] = "$(file_path)"              // Path to data
+    """
+end
 
-    return rel
+function json_import_schema_as_string(file_name::AbstractString,
+                                       file_config::AbstractDict,
+                                       project_path::AbstractString)
+    # Create the rel code for importing the data
+    file_path = get_data_path(file_name, project_path) # Path to data file
+    file_rel_name = file_config[file_name]["rel"]   # Rel name for data file
+    #json_string = open(f->read(f, String), file_path)
+    json_dict = parsefile(file_path)
+    #=
+    rel = """
+          // Start insert for $(file_rel_name)
+          """
+    for (n,jd) in enumerate(json_dict)
+        json_string = "[" * json(jd) * "]"
+        json_string = replace(json_string, "\n" => " ")
+        json_string = replace(json_string, "\\r" => " ")
+        json_string = replace(json_string, "\\n" => " ")
+        json_string = replace(json_string, "\"" => "\\\"")
+        rel = rel * """
+        def config_$(file_rel_name)_$(string(n))[:data] = "$(json_string)"
+        def insert[:$(file_rel_name)] = load_json[config_$(file_rel_name)_$(string(n))]
+        """
+    end
+    #file_rel_name = "my_relation"
+    #println(json_string[1:min([500,length(json_string)]...)])
+
+    #def config_$(file_rel_name)[:data] = "[ { \\"alice\\": false } ]"
+    #def insert[:$(file_rel_name)] = load_json[config_$(file_rel_name)]
+    
+    return rel=#
+
+    json_string = json(json_dict)
+    json_string = replace(json_string, "\n" => " ")
+    json_string = replace(json_string, "\\r" => " ")
+    json_string = replace(json_string, "\\n" => " ")
+    json_string = replace(json_string, "\"" => "\\\"")
+
+    """
+    def config_$(file_rel_name)_$(string(n))[:data] = "$(json_string)"
+    def insert[:$(file_rel_name)] = load_json[config_$(file_rel_name)_$(string(n))]
+    """
+
 end
 
 # -- Call these functions to load data --
 
-function insert_scenario_data(conn::LocalConnection, project_name::AbstractString; 
-                              scenario::AbstractString="default")
+function insert_scenario_data(conn::Connection, project_name::AbstractString; 
+                              scenario::AbstractString="default", 
+                              as_string::Bool=false)
 
     # Load all data files for a scenario
+
+    if !isequal(current_mgmt_conn, missing)
+        as_string = true
+    end
 
     # Get configuration for data files
     file_config = data_import_configuration(project_name)
@@ -94,7 +144,9 @@ function insert_scenario_data(conn::LocalConnection, project_name::AbstractStrin
     # Load each file
 
     # Insert CSV files
-    @info "Inserting CSV files via query (update mode)."
+    if length(csv_file_names) > 0 
+        @info "Inserting CSV files via query (update mode)."
+    end
     for file_name in csv_file_names
         # Create Rel code for import
         @info "--> Inserting $(file_name) from $(project_name)..."
@@ -105,21 +157,26 @@ function insert_scenario_data(conn::LocalConnection, project_name::AbstractStrin
     end
 
     # Insert JSON files
-    @info "Inserting JSON files via query (update mode)."
+    if length(json_file_names) > 0 
+        @info "Inserting JSON files via query (update mode)."
+    end
     for file_name in json_file_names
         # Create Rel code for import
         @info "--> Inserting $(file_name) from $(project_name)..."
-        rel_code_string = json_import_schema_rel(file_name,file_config,project_path)
+        as_string ? rel_code_string = json_import_schema_as_string(file_name,file_config,project_path) :
+                    rel_code_string = json_import_schema_rel(file_name,file_config,project_path)
         # Install using Rel
         query(conn, rel_code_string; readonly=false)
         @info "...Success."
     end
 
     # Insert REL files
-    @info "Inserting REL files via query (update mode)."
+    if length(rel_file_names) > 0 
+        @info "Inserting REL files via query (update mode)."
+    end
     rel_code_string = ""
     for file_name in rel_file_names
-        file_path = get_source_path(file_name,project_path)
+        #file_path = get_source_path(file_name,project_path)
         @info "Adding $(file_name) from $(project_name)..."
         rel_code_string = rel_code_string * load_src(file_name, project_path)
         @info "...Success."
@@ -132,7 +189,7 @@ function insert_scenario_data(conn::LocalConnection, project_name::AbstractStrin
 
 end
 
-function insert_data_file(conn::LocalConnection,
+function insert_data_file(conn::Connection,
                            file_name::AbstractString, 
                            project_name::AbstractString)
 

@@ -15,7 +15,7 @@ end
 
 # -- Call these functions to load rel source files
 
-function install_src_file(conn::LocalConnection,
+function install_src_file(conn::Connection,
                           file_name::AbstractString, 
                           project_path::AbstractString)
     
@@ -27,7 +27,7 @@ function install_src_file(conn::LocalConnection,
     @info "...Success."
 end
 
-function install_rel(conn::LocalConnection,
+function install_rel(conn::Connection,
                      rel_string::AbstractString; 
                      name::AbstractString="source")
 
@@ -37,7 +37,7 @@ function install_rel(conn::LocalConnection,
     @info "...Success."
 end
 
-function install_scenario_src(conn::LocalConnection, project_name::AbstractString; 
+function install_scenario_src(conn::Connection, project_name::AbstractString; 
                               scenario::AbstractString="default", sequential::Bool=false)
 
     # Load all source files for the scenario
@@ -69,7 +69,7 @@ function install_scenario_src(conn::LocalConnection, project_name::AbstractStrin
     end
 end
 
-function reinstall_scenario_src(conn::LocalConnection, project_name::AbstractString; 
+function reinstall_scenario_src(conn::Connection, project_name::AbstractString; 
                                 scenario::AbstractString="default", sequential::Bool=false)
     
     # List sources
