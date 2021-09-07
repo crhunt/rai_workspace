@@ -2,21 +2,18 @@
 
 // Overall
 
-def issue_duration(issue,period) = 
-    period = ( datetime_to_nanoseconds[closed_at[issue]] - 
-               datetime_to_nanoseconds[created_at[issue]] ) / (3600 * 1e9 * 24)
+def issue_duration[issue] = ( datetime_to_nanoseconds[closed_at[issue]] - 
+                              datetime_to_nanoseconds[created_at[issue]] ) / (3600 * 1e9 * 24)
 
-def mean_duration(label_id,mean_period) = 
-    mean_period = mean[issue, period: issue_duration(issue, period) and
-                                      has_label(issue,label_id) and
-                                      label(label_id)]
+def mean_duration[label_id] = mean[issue, period: issue_duration(issue, period) and
+                                                   has_label(issue,label_id) and
+                                                   label(label_id)]
 
-def stddev_duration(label_id, variance) = 
-    variance = pop_stddev[issue, period: issue_duration(issue, period) and
-                                         has_label(issue,label_id) and
-                                         label(label_id)]
+def stddev_duration[label_id] = pop_stddev[issue, period: issue_duration(issue, period) and
+                                                          has_label(issue,label_id) and
+                                                          label(label_id)]
 
-def display_mean_duration(name,mean_period, stddev_period) =
+def display_mean_duration(name, mean_period, stddev_period) =
     mean_duration(label_id,mean_period) and
     stddev_duration(label_id,stddev_period) and
     has_name(label_id,name) and
@@ -29,15 +26,13 @@ def issue_duration_1Q(issue,period) =
     issue_duration(issue,period) and
     period < 90
 
-def mean_duration_1Q(label_id,mean_period) = 
-    mean_period = mean[issue, period: issue_duration_1Q(issue, period) and
-                                      has_label(issue,label_id) and
-                                      label(label_id)]
+def mean_duration_1Q[label_id] = mean[issue, period: issue_duration_1Q(issue, period) and
+                                                     has_label(issue,label_id) and
+                                                     label(label_id)]
 
-def stddev_duration_1Q(label_id, variance) = 
-    variance = pop_stddev[issue, period: issue_duration_1Q(issue, period) and
-                                         has_label(issue,label_id) and
-                                         label(label_id)]
+def stddev_duration_1Q[label_id] = pop_stddev[issue, period: issue_duration_1Q(issue, period) and
+                                                             has_label(issue,label_id) and
+                                                             label(label_id)]
 
 def display_mean_duration_1Q(name,mean_period, stddev_period) =
     mean_duration_1Q(label_id,mean_period) and
@@ -48,8 +43,7 @@ def display_mean_duration_1Q(name,mean_period, stddev_period) =
 
 /* Frequency of labels */
 
-def has_occurred(label_id, cnt) =
-    cnt = count[issue: has_label(issue,label_id)]
+def has_occurred[label_id] = count[issue: has_label(issue,label_id)]
 
 def has_occurred_1Q(label_id, cnt, frac) =
     cnt = count[issue: has_label(issue,label_id) and issue_duration_1Q(label_id,_)] and
