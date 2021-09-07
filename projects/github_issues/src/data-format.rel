@@ -1,0 +1,37 @@
+/**
+ * Utilities for JSON schema mapping
+ */
+
+def json_issue[x] =
+    json_issues[:[], i]
+    from i where json_issues(:[], i, :id, x)
+
+def json_label[x] =
+    json_labels[:[], i]
+    from i where json_labels(:[], i, :id, x)
+
+def json_milestone[x] =
+    json_milestones[:[], i]
+    from i where json_milestones(:[], i, :id, x)
+
+
+/**
+ * Datetime utils
+ */
+def iso_format = "yyyy-mm-ddTHH:MM:SS"
+
+// Bleh
+@inline
+def parse_iso_datetime[s] = parse_datetime[substring[s, 1, 19], iso_format]
+
+@inline
+def year[dt] = datetime_year[dt, "UTC"]
+
+@inline
+def quarterofyear[dt] = datetime_quarterofyear[dt, "UTC"]
+
+@inline
+def monthofyear[dt] = datetime_monthofyear[dt, "UTC"]
+
+@inline
+def quarter[dt] = concat[string[year[dt]], concat["-Q", string[quarterofyear[dt]]]]

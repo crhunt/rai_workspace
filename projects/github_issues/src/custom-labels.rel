@@ -1,0 +1,71 @@
+/*****
+ * Relations that are specific to labels in the repo.
+ */
+
+ /*****
+ * Labels (currently collected from labels that occur in issues)
+ */
+ic { customer_label ⊆ label }
+ic { current_customer_label ⊆ customer_label }
+
+def customer_label(l) =
+    label_name(l, s) and
+    regex_match("^customer", s)
+    from s
+
+def current_customer_label(l) =
+    label_name(l, "customer:att") or
+    label_name(l, "customer:ey") or
+    label_name(l, "customer:lantik")
+
+def priority_urgent_label(l) =
+    label_name(l, "priority:urgent")
+
+def priority_high_label(l) =
+    label_name(l, "priority:high")
+
+def priority_medium_label(l) =
+    label_name(l, "priority:medium")
+
+def priority_low_label(l) =
+    label_name(l, "priority:low")
+
+/*****
+ * Priorities
+ */
+def priority_urgent(i) =
+    has_label(i, l)
+    from l in priority_urgent_label
+
+def priority_high(i) =
+    has_label(i, l)
+    from l in priority_high_label
+
+def priority_medium(i) =
+    has_label(i, l)
+    from l in priority_medium_label
+
+def priority_low(i) =
+    has_label(i, l)
+    from l in priority_low_label
+
+def priority_missing(i) =
+    issue(i) and not (
+        priority_urgent(i) or
+        priority_high(i) or
+        priority_medium(i) or
+        priority_low(i))
+
+def priority[i in priority_urgent] = "urgent"
+def priority[i in priority_high] = "high"
+def priority[i in priority_medium] = "medium"
+def priority[i in priority_low] = "low"
+def priority[i in priority_missing] = "-"
+
+/*****
+ * Components
+ */
+def component_label(l) =
+    label_name(l, s) and
+    regex_match("^component:", s)
+    from s

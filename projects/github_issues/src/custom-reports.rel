@@ -1,0 +1,104 @@
+/*****
+ * HTML tables for reporting
+ */
+@inline
+def html_issue_table[R] =
+    html[issue_table[R]]
+
+@inline
+def issue_section[title, R] =
+    concat["<h2>", concat[title, concat["</h2>", issue_table[R]]]]
+
+@inline
+def issue_table[R] =
+    concat["""<table style="max-width: 100ch">
+            <thead>
+                  <tr>
+                      <th>Nr</th>
+                      <th>Title</th>
+                      <th>Priority</th>
+                      <th>Assignee</th>
+                  </tr>
+            </thead>
+            <tbody>
+        """,
+        concat[string_join["", {issue_table_row[i] for i in R}],
+            "</tbody></table>"]]
+
+def issue_number_label[x in pull_request] =
+    concat["PR&nbsp;#", string[number[x]]]
+
+def issue_number_label[x in issue] =
+    concat["#", string[number[x]]]
+
+def issue_assignees_present[x in issue] =
+    string_join[", ", {user_name[u] for u in has_assignee[x]}]
+
+def issue_assignees[x in issue] =
+    issue_assignees_present[x] <++ ""
+
+def issue_table_row[x] =
+    concat["<tr><td>",
+        concat[issue_number_label[x],
+            concat["</td><td><a href=\"",
+                concat[url[x],
+                    concat["\">",
+                        concat[has_title[x],
+                            concat["</a></td>",
+                                concat["<td>",
+                                    concat[priority[x],
+                                        concat["</td><td>",
+                                            concat[issue_assignees[x],
+                                                    "</td></tr>"]]]]]]]]]]]
+
+@inline
+def label_section[l] =
+    issue_section[label_name[l], {x: has_label(x, l) and open(x)}]
+
+@inline
+def assignee_section[u] =
+    issue_section[user_name[u], {x: has_assignee(x, u) and open(x)}]
+
+@inline
+def customer_report =
+    string_join["\n", {label_section[l] for l in current_customer_label}]
+
+@inline
+def assignee_report =
+    string_join["\n", {assignee_section[u] for u in user}]
+
+
+/*
+@inline
+def html_table[R] =
+    html[string_table[R]]
+
+@inline
+def string_table[R] =
+    concat["<table style=\"max-width: 100ch\">",
+        concat[string_join["", {string_table_row[xs...] for xs... in R}],
+            "</table>"]]
+
+@inline
+def string_table_row[a] =
+    concat["<tr><td>",
+        concat[show_with_default[a],
+            "</td></tr>"]]
+
+@inline
+def string_table_row[a, b] =
+    concat["<tr><td>",
+        concat[show_with_default[a],
+            concat["</td><td>",
+                concat[show_with_default[b]],
+                    "</td></tr>"]]]
+
+
+@inline
+def show_with_default = show <++ show_default
+
+@inline
+def show_default[x] = string[x]
+
+def show[x in issue] = issue_title[x]
+*/

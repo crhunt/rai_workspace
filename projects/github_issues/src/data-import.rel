@@ -1,0 +1,15 @@
+// Set the source configuration
+def data_path = "./projects/github_issues/data/"
+def src_config[:raicode] = { (:json_labels, concat[data_path,"labels-formatted.json"]);
+                             (:json_milestones, concat[data_path,"milestones-formatted.json"]);
+                             (:json_issues, concat[data_path,"issues-formatted.json"]); }
+
+// Repositories in source
+def repositories(repo) = src_config[repo](v...) from v...
+
+// Set paths
+def data_config[repo][name][:path] = src_config[repo][name]
+
+// Insert data
+def insert[name] = load_json[data_config[repo][name]]
+    from repo where repositories(repo)
