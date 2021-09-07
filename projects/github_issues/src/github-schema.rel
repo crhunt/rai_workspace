@@ -31,25 +31,25 @@ def issue(x) =
  * Common
  */
 
-def number[x] =
+def has_number[x] =
     json_issue[x, :number]
 
-def issue_title[x] =
+def has_issue_title[x] =
     json_issue[x, :title]
 
-def has_title = issue_title
+def has_title = has_issue_title
 
-def url[x] =
+def has_url[x] =
     json_issue[x, :html_url]
 
-def state[x] =
+def has_state[x] =
     json_issue[x, :state]
 
 def open(x) =
-    state(x, "open")
+    has_state(x, "open")
 
 def closed(x) =
-    state(x, "closed")
+    has_state(x, "closed")
 
 def created_at[x] =
     parse_iso_datetime[json_issue[x, :created_at]]
@@ -61,8 +61,10 @@ def closed_at[x] =
 def closed_at_string(x, s) =
     json_issue(x, :closed_at, s) and s != ""
 
-def author(x, u) =
+def has_author(x, u) =
     json_issue(x, :user, :id, u)
+
+def author = has_author[_]
 
 def has_milestone(i, m) =
     json_issue(i, :milestone, :id, m)

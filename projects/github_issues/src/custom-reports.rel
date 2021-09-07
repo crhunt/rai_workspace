@@ -26,10 +26,10 @@ def issue_table[R] =
             "</tbody></table>"]]
 
 def issue_number_label[x in pull_request] =
-    concat["PR&nbsp;#", string[number[x]]]
+    concat["PR&nbsp;#", string[has_number[x]]]
 
 def issue_number_label[x in issue] =
-    concat["#", string[number[x]]]
+    concat["#", string[has_number[x]]]
 
 def issue_assignees_present[x in issue] =
     string_join[", ", {user_name[u] for u in has_assignee[x]}]
@@ -41,7 +41,7 @@ def issue_table_row[x] =
     concat["<tr><td>",
         concat[issue_number_label[x],
             concat["</td><td><a href=\"",
-                concat[url[x],
+                concat[has_url[x],
                     concat["\">",
                         concat[has_title[x],
                             concat["</a></td>",
@@ -100,5 +100,5 @@ def show_with_default = show <++ show_default
 @inline
 def show_default[x] = string[x]
 
-def show[x in issue] = issue_title[x]
+def show[x in issue] = has_issue_title[x]
 */

@@ -2,11 +2,11 @@
  * Properties common to pull requests and issues
  */
 // Constrain types for certain relations
-ic { issue_title ⊆ (github_issue, String) }
-ic { number ⊆ (github_issue, Int) }
+ic { has_issue_title ⊆ (github_issue, String) }
+ic { has_number ⊆ (github_issue, Int) }
 ic { created_at ⊆ (github_issue, DateTime) }
 ic { closed_at ⊆ (github_issue, DateTime) }
-ic { state ⊆ (github_issue, {"open"; "closed"}) }
+ic { has_state ⊆ (github_issue, {"open"; "closed"}) }
 ic { has_label ⊆ (github_issue, label) }
 ic { has_assignee ⊆ (github_issue, user) }
 // All open and closed issues must be github_issues, and all github_issues must be
@@ -15,10 +15,10 @@ ic { open ⊆ github_issue }
 ic { closed ⊆ github_issue }
 ic { forall(x in github_issue: closed(x) xor open(x)) }
 // For each of these relations, there can be only one value per issue
-ic { function(title) }
-ic { function(number) }
-ic { function(url) }
-ic { function(state) }
+ic { function(has_title) }
+ic { function(has_number) }
+ic { function(has_url) }
+ic { function(has_state) }
 ic { function(created_at) }
 ic { function(closed_at) }
 

@@ -1,8 +1,17 @@
-// Set the source configuration
+/* Set the source configuration
+ *
+ * Declare the files to upload for each repository. This rel can be changed to a configuration file.
+ */
 def data_path = "./projects/github_issues/data/"
 def src_config[:raicode] = { (:json_labels, concat[data_path,"labels-formatted.json"]);
                              (:json_milestones, concat[data_path,"milestones-formatted.json"]);
                              (:json_issues, concat[data_path,"issues-formatted.json"]); }
+
+
+/* Insert data
+ *
+ * Note: The json_* relations are overloaded across all repositories.
+ */
 
 // Repositories in source
 def repositories(repo) = src_config[repo](v...) from v...
