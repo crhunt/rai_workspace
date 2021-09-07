@@ -37,17 +37,21 @@ function set_server(server_type::String;
         println("Profile: $(profile)")
         println("Verify SSL: $(verify_ssl)")
         println("Compute name: $(current_compute_name)")
-        accounts = join( Set( [String(x.account_name) for x in list_users(current_mgmt_conn)] ), ", " )
+        accounts = join( Set( [String(x.account_name) for x in list_computes(current_mgmt_conn)] ), ", " )
         println("Account(s): $(accounts)")
-        computes = join( [String(x.name) for x in list_computes(current_mgmt_conn) if isequal(x.state,:PROVISIONED)], ", " )
-        println("Provisioned computes: $(computes)")
-        if !occursin(current_compute_name,computes)
-            @warn "Compute $(current_compute_name) not found in provisioned computes."
-        end
+        provisioned_computes()
     else
         @warn "Server type not recognized. Specify: 'binary-server', 'local-server', or 'remote-server'."
     end
 
+end
+
+function provisioned_computes()
+    computes = join( [String(x.name) for x in list_computes(current_mgmt_conn) if isequal(x.state,:PROVISIONED)], ", " )
+    println("Provisioned computes: $(computes)")
+    if !occursin(current_compute_name,computes)
+        @warn "Compute $(current_compute_name) not found in provisioned computes."
+    end
 end
 
 println("Including activate_rai.jl")
