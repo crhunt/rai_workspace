@@ -7,8 +7,15 @@
         },
     "insights": {
             "name": "insights",
-            "deps": [ "github-model", "github-insights" ],
+            "deps": [ "data-format", "github-schema", "custom-labels", "issue-insights",
+                      "custom-reports" ],
             "data": [ "issues-formatted.json", "labels-formatted.json", 
                       "milestones-formatted.json" ]
-        }
+        },
+    "rel_import": {
+        "name": "rel_import",
+        "deps": [ "data-format", "github-schema", "custom-labels", "issue-insights",
+                  "custom-reports" ],
+        "data": [ "data-import.rel" ]
+    }
 }

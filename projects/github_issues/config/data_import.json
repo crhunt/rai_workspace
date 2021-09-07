@@ -10,5 +10,9 @@
     "milestones-formatted.json": {
         "rel": "json_milestones",
         "optional": false
+    },
+    "test.json": {
+        "rel": "test_relation",
+        "optional": false
     }
 }
