@@ -5,8 +5,8 @@
 /*****
  * GitHub issues are either pull requests or issues
  */
-def github_issue(x) =
-    json_issue(x, :id, x)
+def github_issue(gi) =
+    json_issue(gi, :id, gi)
 
 /**
  * Pull requests
@@ -14,8 +14,8 @@ def github_issue(x) =
 
 ic { pull_request ⊆ github_issue }
 
-def pull_request(x) =
-    exists(json_issue[x, :pull_request])
+def pull_request(pr) =
+    exists(json_issue[pr, :pull_request])
 
 /**
  * Issues (not pull requests)
@@ -23,57 +23,57 @@ def pull_request(x) =
 
 ic { issue ⊆ github_issue }
 
-def issue(x) =
-    json_issue(x, :id, x) and
-    not pull_request(x)
+def issue(gi) =
+    github_issue(gi) and
+    not pull_request(gi)
 
 /*****
  * Common
  */
 
-def has_number[x] =
-    json_issue[x, :number]
+def has_number[gi] =
+    json_issue[gi, :number]
 
-def has_issue_title[x] =
-    json_issue[x, :title]
+def has_issue_title[gi] =
+    json_issue[gi, :title]
 
 def has_title = has_issue_title
 
-def has_url[x] =
-    json_issue[x, :html_url]
+def has_url[gi] =
+    json_issue[gi, :html_url]
 
-def has_state[x] =
-    json_issue[x, :state]
+def has_state[gi] =
+    json_issue[gi, :state]
 
-def open(x) =
-    has_state(x, "open")
+def open(gi) =
+    has_state(gi, "open")
 
-def closed(x) =
-    has_state(x, "closed")
+def closed(gi) =
+    has_state(gi, "closed")
 
-def created_at[x] =
-    parse_iso_datetime[json_issue[x, :created_at]]
+def created_at[gi] =
+    parse_iso_datetime[json_issue[gi, :created_at]]
 
-def closed_at[x] =
-    parse_iso_datetime[closed_at_string[x]]
+def closed_at[gi] =
+    parse_iso_datetime[closed_at_string[gi]]
 
 // We're replacing null with empty string as a workaround for an open issue.
 def closed_at_string(x, s) =
     json_issue(x, :closed_at, s) and s != ""
 
-def has_author(x, u) =
-    json_issue(x, :user, :id, u)
+def has_author(gi, u) =
+    json_issue(gi, :user, :id, u)
 
 def author = has_author[_]
 
-def has_milestone(i, m) =
-    json_issue(i, :milestone, :id, m)
+def has_milestone(gi, m) =
+    json_issue(gi, :milestone, :id, m)
 
-def has_label(i, l) =
-    json_issue(i, :labels, :[], _, :id, l)
+def has_label(gi, l) =
+    json_issue(gi, :labels, :[], _, :id, l)
 
-def has_assignee(x, u) =
-    json_issue(x, :assignees, :[], _, :id, u)
+def has_assignee(gi, u) =
+    json_issue(gi, :assignees, :[], _, :id, u)
 
 /*****
  * Users (currently collected from users that occur in issues)
@@ -81,20 +81,20 @@ def has_assignee(x, u) =
 ic { user_login ⊆ (user, String) }
 
 // users from the person who filed the issue
-def user(x) =
-    json_issue(_, :user, :id, x)
+def user(u) =
+    json_issue(_, :user, :id, u)
 
 // users from assignees
-def user(x) =
-    json_issue(_, :assignees, :[], _, :id, x)
+def user(u) =
+    json_issue(_, :assignees, :[], _, :id, u)
 
-def user_login(x, s) =
-    json_issue(i, :user, :id, x) and
+def user_login(u, s) =
+    json_issue(i, :user, :id, u) and
     json_issue(i, :user, :login, s)
     from i
 
-def user_login(x, s) =
-    json_issue(i, :assignees, :[], j, :id, x) and
+def user_login(u, s) =
+    json_issue(i, :assignees, :[], j, :id, u) and
     json_issue(i, :assignees, :[], j, :login, s)
     from i, j
 
@@ -102,21 +102,21 @@ def user_login(x, s) =
  * Labels (currently collected from labels that occur in issues)
  */
 
-def label(x) =
-    json_label(x, :id, x)
+def label(lb) =
+    json_label(lb, :id, lb)
 
-def label_name(l, s) =
-    json_label(l, :name, s)
+def label_name(lb, s) =
+    json_label(lb, :name, s)
 
 /*****
  * Milestones
  */
 
-def milestone(x) =
-    json_milestone(x, :id, x)
+def milestone(m) =
+    json_milestone(m, :id, m)
 
-def milestone_title[x] =
-    json_milestone[x, :title]
+def milestone_title[m] =
+    json_milestone[m, :title]
 
 def has_title = milestone_title
 
