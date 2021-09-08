@@ -2,6 +2,29 @@
  * Relations that are specific to labels in the repo.
  */
 
+// Get label categories, designated by a split character in the label name
+
+def label_split_char = ':'
+
+def regex_label_split_char = string_join[ "|", sort[string[label_split_char]] ]
+
+def label_name[:category][label_id] = substring[label_string,1,ind-1]
+    from label_string, ind, spl_char where
+    label_name(label_id,label_string) and
+    char(label_string,ind,spl_char) and
+    label_split_char(spl_char) and
+    not regex_match[regex_label_split_char, substring[label_string,1,ind-1]]
+
+def label_category = label_name[:category][_]
+
+def label_name[:value][label_id] = substring[label_string, ind, num_chars[label_string]]
+    from label_string, ind, cat_str where
+    label_name(label_id,label_string) and
+    label_name[:category](label_id,cat_str) and
+    ind = num_chars[cat_str] + 2   
+
+// Get labels that 
+
  /*****
  * Labels (currently collected from labels that occur in issues)
  */
