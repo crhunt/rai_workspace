@@ -1,0 +1,9 @@
+/*****
+ * User information
+ */
+
+def has_login[u] = json_user[u,:login]
+
+def has_user_name[u] = json_user[u,:name]
+
+def has_name = has_user_name

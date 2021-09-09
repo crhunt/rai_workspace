@@ -51,12 +51,13 @@ def created_at[gi] =
 def closed_at[gi] =
     parse_iso_datetime[closed_at_string[gi]]
 
+// Internal use only
 // We're replacing null with empty string as a workaround for an open issue.
 def closed_at_string(x, s) =
     json_issue(x, :closed_at, s) and s != ""
 
-def has_author(gi, u) =
-    json_issue(gi, :user, :id, u)
+def has_author[gi] =
+    has_user_id[ json_issue[gi, :user, :node_id] ]
 
 def author = has_author[_]
 
@@ -66,32 +67,8 @@ def has_milestone[gi] =
 def has_label[gi] =
     has_label_id[ json_issue[gi, :labels, :[], _, :id] ]
 
-def has_assignee(gi, u) =
-    json_issue(gi, :assignees, :[], _, :id, u)
-
-/*****
- * Users (currently collected from users that occur in issues)
- */
-ic { user_login ⊆ (user, String) }
-
-// users from the person who filed the issue
-def user(u) =
-    json_issue(_, :user, :id, u)
-
-// users from assignees
-def user(u) =
-    json_issue(_, :assignees, :[], _, :id, u)
-
-def user_login(u, s) =
-    json_issue(i, :user, :id, u) and
-    json_issue(i, :user, :login, s)
-    from i
-
-def user_login(u, s) =
-    json_issue(i, :assignees, :[], j, :id, u) and
-    json_issue(i, :assignees, :[], j, :login, s)
-    from i, j
-
+def has_assignee[gi] =
+    has_user_id[ json_issue[gi, :assignees, :[], _, :node_id] ]
 
 /*****
  * Milestones
@@ -118,73 +95,3 @@ def open_pull_request_count_still_open[dt in pr_relevant_date] =
 def open_pull_request_count[dt in pr_relevant_date] =
     (open_pull_request_count_later_closed[dt] <++ 0) + 
     (open_pull_request_count_still_open[dt] <++ 0)
-
-
-/**
- * RAI account info
- */
-//ic { forall(u where has_assignee(_, u): exists(user_name[u])) }
-
-def ghost_user(u) =
-    has_assignee(_,u) and not exists(user_name[u])
-
-def user_name =
-    user_login.login_name
-
-def has_name = user_login.login_name
-
-def login_name =
-    ("amirsh", "Amir");
-    ("epasalic", "Emir Pasalic");
-    ("larf311", "Trevor Paddock");
-    ("mariabaladuggimpudi", "Bala");
-    ("millerjoey", "Joe Miller");
-    ("rodericpaulk", "Rod");
-    ("vilterp", "Pete Vilter");
-    ("dbalakri", "Darshana");
-    ("dewilson", "Dana");
-    ("mcmcgrath13", "Mary");
-    ("samuelkolb", "Samuel");
-    ("tsourolampis", "Babis");
-    ("pabsts", "Stefan");
-    ("remysucre", "Remy");
-    ("NRHelmi", "Helmi");
-    ("Liby99", "Ziyang");
-    ("Sacha0", "Sacha");
-    ("antoulas-rai", "Alex Ntoulas");
-    ("rbvermaa", "Rob Vermaas");
-    ("tomasrelai", "Tomas");
-    ("tveldhui", "Todd Veldhuizen");
-    ("Chakerbh", "Chaker");
-    ("ntzia", "	Nikolaos Tziavelis");
-    ("ElSeidy", "Mohammad ElSeidy");
-    ("mdashti", "Mohammad Dashti");
-    ("nystrom", "Nate Nystrom");
-    ("janrous-rai", "Jan");
-    ("rai-nhdaly", "Nathan Daly");
-    ("hung-q-ngo", "Hung");
-    ("eoxxs", "David Bach");
-    ("comnik", "Niko");
-    ("rgankema", "Richard Gankema");
-    ("mabokhamis", "Mahmoud");
-    ("li1", "Malte");
-    ("rcurtin", "Ryan Curtin");
-    ("mbravenboer", "Martin Bravenboer");
-    ("hall-alex", "Alex Hall");
-    ("geokollias", "George Kollias");
-    ("muralipusala", "Murali");
-    ("cliffclick", "Cliff Click");
-    ("robbear", "Rob Bearman");
-    ("Segflow", "Meher");
-    ("AzamatB", "Azamat");
-    ("sjbertolani", "Steve Bertolani");
-    ("kurtStirewalt", "Kurt Stirewalt");
-    ("jagrafft", "Jason");
-    ("geokollias", "George");
-    ("sharathjapa", "Sharath");
-    ("azreika", "Abdul");
-    ("Hoda-Moradi", "Hoda");
-    ("yimin-rai", "Yimin");
-    ("cfguerra", "Carlos");
-    ("nassarhuda", "Huda");
-    ("crhunt", "Cassi Hunt")

@@ -8,15 +8,21 @@ entity Label has_label_id = json_labels[:[], _, :node_id]
 
 entity Milestone has_milestone_id = json_milestones[:[], _, :node_id]
 
+entity User has_user_id = json_users[:[], _, :node_id]
+
+// Key data on globally unique entity
+
 def json_issue[gi] = json_issues[:[], i]
     from i where has_issue_id[ json_issues[:[], i, :node_id] ](gi)
 
 def json_label[lb] = json_labels[:[], i]
-    from i where has_issue_id[ json_labels[:[], i, :node_id] ](lb)
+    from i where has_label_id[ json_labels[:[], i, :node_id] ](lb)
 
 def json_milestone[m] = json_milestones[:[], i]
-    from i where has_issue_id[ json_milestones[:[], i, :node_id] ](m)
+    from i where has_milestone_id[ json_milestones[:[], i, :node_id] ](m)
 
+def json_user[u] = json_users[:[], i]
+    from i where has_user_id[ json_users[:[], i, :node_id] ](u)
 
 /**
  * Datetime utils

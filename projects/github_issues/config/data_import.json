@@ -11,6 +11,10 @@
         "rel": "json_milestones",
         "optional": false
     },
+    "user-details-formatted.json": {
+        "rel": "json_users",
+        "optional": false
+    },
     "test.json": {
         "rel": "test_relation",
         "optional": false

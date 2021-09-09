@@ -6,10 +6,12 @@ ic { has_issue_title ⊆ (GithubIssue, String) }
 ic { has_number ⊆ (GithubIssue, Int) }
 ic { created_at ⊆ (GithubIssue, DateTime) }
 ic { closed_at ⊆ (GithubIssue, DateTime) }
-// Constrain values
+ic { has_login ⊆ (User, String) }
+// Constrain value types
 ic { has_state ⊆ (GithubIssue, {"open"; "closed"}) }
 ic { has_label ⊆ (GithubIssue, Label) }
-ic { has_assignee ⊆ (GithubIssue, user) }
+ic { has_author ⊆ (GithubIssue, User) }
+ic { has_assignee ⊆ (GithubIssue, User) }
 ic { pull_request ⊆ GithubIssue }
 ic { issue ⊆ GithubIssue }
 // All open and closed issues must be GithubIssues, and all GithubIssues must be
@@ -17,6 +19,8 @@ ic { issue ⊆ GithubIssue }
 ic { open ⊆ GithubIssue }
 ic { closed ⊆ GithubIssue }
 ic { forall(x in GithubIssue: closed(x) xor open(x)) }
+// Make sure all users exist
+ic { forall(u where has_assignee(_, u): exists(has_user_name[u])) }
 // For each of these relations, there can be only one value per issue
 ic { function(has_title) }
 ic { function(has_number) }

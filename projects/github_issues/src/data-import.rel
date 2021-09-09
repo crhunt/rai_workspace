@@ -5,7 +5,8 @@
 def data_path = "./projects/github_issues/data/"
 def src_config[:raicode] = { (:json_labels, concat[data_path,"labels-formatted.json"]);
                              (:json_milestones, concat[data_path,"milestones-formatted.json"]);
-                             (:json_issues, concat[data_path,"issues-formatted.json"]); }
+                             (:json_issues, concat[data_path,"issues-formatted.json"]);
+                             (:json_users, concat[data_path,"user-details-formatted.json"]); }
 
 
 /* Insert data

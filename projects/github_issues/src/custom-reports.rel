@@ -32,7 +32,7 @@ def issue_number_label[x in issue] =
     concat["#", string[has_number[x]]]
 
 def issue_assignees_present[x in issue] =
-    string_join[", ", {user_name[u] for u in has_assignee[x]}]
+    string_join[", ", {has_user_name[u] for u in has_assignee[x]}]
 
 def issue_assignees[x in issue] =
     issue_assignees_present[x] <++ ""
@@ -57,7 +57,7 @@ def label_section[l] =
 
 @inline
 def assignee_section[u] =
-    issue_section[user_name[u], {x: has_assignee(x, u) and open(x)}]
+    issue_section[has_user_name[u], {x: has_assignee(x, u) and open(x)}]
 
 @inline
 def customer_report =
@@ -65,7 +65,7 @@ def customer_report =
 
 @inline
 def assignee_report =
-    string_join["\n", {assignee_section[u] for u in user}]
+    string_join["\n", {assignee_section[u] for u in User}]
 
 
 /*
