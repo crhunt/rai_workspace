@@ -1,5 +1,7 @@
 # Github issues tracking
 
+Pull data from one or more github repositories and generate a knowledge graph from the data. Derive insights related to issues, pull requests, and user activity.
+
 ## Required steps to pull data
 
 ### 1. Install GhApi
@@ -26,10 +28,16 @@ $ source ~/.bashrc
 
 ### 3. Run script to pull data via GhApi API
 
-This script uses the GhApi API to pull data. Pulls data to same directory.
+This script uses GhApi and the Github API to pull data from github. Pulls data to the same directory.
 
 ```bash
 $ python3 pull_github_data.py
+```
+
+Set the owner and/or repository with flags.
+
+```bash
+$ python3 pull_github_data.py --owner RelationalAI --repo raicode
 ```
 
 ### 4. Post-process files to render compatible with Rel
@@ -37,7 +45,7 @@ $ python3 pull_github_data.py
 Resolve null value compatibility issues with Rel, so we can insert the json data into our Rel program.
 
 ```bash
-$ bash run.sh
+$ bash format-json.sh
 ```
 
 ### 5. Place final files in data directory
