@@ -1,0 +1,34 @@
+/*****
+ * Define schema for labels
+ */
+
+// Label attributes
+
+def has_label_name[label] = json_label[label, :name]
+
+def has_name = has_label_name
+
+// Get label categories, designated by a split character in the label name
+
+def label_split_char = ':'
+
+def regex_label_split_char = string_join[ "|", sort[string[label_split_char]] ]
+
+def has_label_name[:category][label] = substring[label_string,1,ind-1]
+    from label_string, ind, spl_char where
+    has_label_name(label,label_string) and
+    char(label_string,ind,spl_char) and
+    label_split_char(spl_char) and
+    not regex_match[regex_label_split_char, substring[label_string,1,ind-1]]
+
+def label_category = has_label_name[:category][_]
+
+def has_label_name[:value][label] = substring[label_string, ind, num_chars[label_string]]
+    from label_string, ind, cat_str where
+    has_label_name(label,label_string) and
+    has_label_name[:category](label,cat_str) and
+    ind = num_chars[cat_str] + 2
+
+def has_label_name[:singlevalue](label,label_string) =
+    has_label_name(label,label_string) and
+    not has_label_name[:category](label,_)

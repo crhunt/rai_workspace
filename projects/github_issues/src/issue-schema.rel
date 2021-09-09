@@ -92,12 +92,6 @@ def user_login(u, s) =
     json_issue(i, :assignees, :[], j, :login, s)
     from i, j
 
-/*****
- * Labels (currently collected from labels that occur in issues)
- */
-
-def label_name(lb, s) =
-    json_label(lb, :name, s)
 
 /*****
  * Milestones
@@ -136,6 +130,8 @@ def ghost_user(u) =
 
 def user_name =
     user_login.login_name
+
+def has_name = user_login.login_name
 
 def login_name =
     ("amirsh", "Amir");

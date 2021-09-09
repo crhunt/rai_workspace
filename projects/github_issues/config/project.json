@@ -7,15 +7,17 @@
         },
     "insights": {
             "name": "insights",
-            "deps": [ "data-format", "github-schema", "custom-labels", "issue-insights",
-                      "custom-reports" ],
+            "deps": [ "data-format", "issue-schema", "label-schema", 
+                      "issue-insights",
+                      "custom-labels", "custom-reports" ],
             "data": [ "issues-formatted.json", "labels-formatted.json", 
                       "milestones-formatted.json" ]
         },
     "rel_import": {
         "name": "rel_import",
-        "deps": [ "data-format", "github-schema", "custom-labels", "issue-insights",
-                  "custom-reports" ],
+        "deps": [ "data-format", "issue-schema", "label-schema", 
+                  "issue-insights",
+                  "custom-labels", "custom-reports" ],
         "data": [ "data-import.rel" ]
     }
 }

@@ -5,18 +5,18 @@
 def issue_duration[issue] = ( datetime_to_nanoseconds[closed_at[issue]] - 
                               datetime_to_nanoseconds[created_at[issue]] ) / (3600 * 1e9 * 24)
 
-def duration[label_id][:mean] = mean[issue, period: issue_duration(issue, period) and
-                                                    has_label(issue,label_id) and
-                                                    Label(label_id)]
+def duration[label][:mean] = mean[issue, period: issue_duration(issue, period) and
+                                                    has_label(issue,label) and
+                                                    Label(label)]
 
-def duration[label_id][:stddev] = pop_stddev[issue, period: issue_duration(issue, period) and
-                                                          has_label(issue,label_id) and
-                                                          Label(label_id)]
+def duration[label][:stddev] = pop_stddev[issue, period: issue_duration(issue, period) and
+                                                          has_label(issue,label) and
+                                                          Label(label)]
 
-def display_duration[name][agg_type] = duration[label_id][agg_type]
-    from label_id where
-    has_name(label_id,name) and
-    has_occurred[label_id] >= 5
+def display_duration[name][agg_type] = duration[label][agg_type]
+    from label where
+    has_name(label,name) and
+    has_occurred[label] >= 5
 
 // Look at shorter lived issues
 
@@ -24,45 +24,37 @@ def issue_duration_p90(issue,period) =
     issue_duration(issue,period) and
     period < 90
 
-def duration_p90[label_id][:mean] = mean[issue, period: issue_duration_p90(issue, period) and
-                                                    has_label(issue,label_id) and
-                                                    Label(label_id)]
+def duration_p90[label][:mean] = mean[issue, period: issue_duration_p90(issue, period) and
+                                                    has_label(issue,label) and
+                                                    Label(label)]
 
-def duration_p90[label_id][:stddev] = pop_stddev[issue, period: issue_duration_p90(issue, period) and
-                                                          has_label(issue,label_id) and
-                                                          Label(label_id)]
+def duration_p90[label][:stddev] = pop_stddev[issue, period: issue_duration_p90(issue, period) and
+                                                          has_label(issue,label) and
+                                                          Label(label)]
 
-def display_duration_p90[name][agg_type] = duration_p90[label_id][agg_type]
-    from label_id where
-    has_name(label_id,name) and
-    has_occurred[label_id] >= 5
+def display_duration_p90[name][agg_type] = duration_p90[label][agg_type]
+    from label where
+    has_name(label,name) and
+    has_occurred[label] >= 5
 
 /* Frequency of labels */
 
-def has_occurred[label_id] = count[issue: has_label(issue,label_id)]
+def has_occurred[label] = count[issue: has_label(issue,label)]
 
-def has_occurred_1Q(label_id, cnt, frac) =
-    cnt = count[issue: has_label(issue,label_id) and issue_duration_p90(label_id,_)] and
-    frac = cnt/has_occurred[label_id]
+def has_occurred_1Q(label, cnt, frac) =
+    cnt = count[issue: has_label(issue,label) and issue_duration_p90(label,_)] and
+    frac = cnt/has_occurred[label]
 
 /* How long between when a PR is created and when it is merged? */
 
 
 /* Model Design */
 
-/* Link id's to names */
-
-// Issue labels
-def has_name(label,name) = json_label(label, :name, name)
-
-// Issue titles
-def has_name = user_login.login_name
-
 /* label groups */
 
 @inline
 def string_to_label_group(rs,l) =
-    label_name(l, n) and
+    has_label_name(l, n) and
     regex_match(rs, n)
     from n
 
