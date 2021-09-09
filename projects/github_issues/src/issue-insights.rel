@@ -7,11 +7,11 @@ def issue_duration[issue] = ( datetime_to_nanoseconds[closed_at[issue]] -
 
 def duration[label_id][:mean] = mean[issue, period: issue_duration(issue, period) and
                                                     has_label(issue,label_id) and
-                                                    label(label_id)]
+                                                    Label(label_id)]
 
 def duration[label_id][:stddev] = pop_stddev[issue, period: issue_duration(issue, period) and
                                                           has_label(issue,label_id) and
-                                                          label(label_id)]
+                                                          Label(label_id)]
 
 def display_duration[name][agg_type] = duration[label_id][agg_type]
     from label_id where
@@ -26,11 +26,11 @@ def issue_duration_p90(issue,period) =
 
 def duration_p90[label_id][:mean] = mean[issue, period: issue_duration_p90(issue, period) and
                                                     has_label(issue,label_id) and
-                                                    label(label_id)]
+                                                    Label(label_id)]
 
 def duration_p90[label_id][:stddev] = pop_stddev[issue, period: issue_duration_p90(issue, period) and
                                                           has_label(issue,label_id) and
-                                                          label(label_id)]
+                                                          Label(label_id)]
 
 def display_duration_p90[name][agg_type] = duration_p90[label_id][agg_type]
     from label_id where

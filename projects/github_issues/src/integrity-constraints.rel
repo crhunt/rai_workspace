@@ -2,18 +2,21 @@
  * Properties common to pull requests and issues
  */
 // Constrain types for certain relations
-ic { has_issue_title ⊆ (github_issue, String) }
-ic { has_number ⊆ (github_issue, Int) }
-ic { created_at ⊆ (github_issue, DateTime) }
-ic { closed_at ⊆ (github_issue, DateTime) }
-ic { has_state ⊆ (github_issue, {"open"; "closed"}) }
-ic { has_label ⊆ (github_issue, label) }
-ic { has_assignee ⊆ (github_issue, user) }
-// All open and closed issues must be github_issues, and all github_issues must be
+ic { has_issue_title ⊆ (GithubIssue, String) }
+ic { has_number ⊆ (GithubIssue, Int) }
+ic { created_at ⊆ (GithubIssue, DateTime) }
+ic { closed_at ⊆ (GithubIssue, DateTime) }
+// Constrain values
+ic { has_state ⊆ (GithubIssue, {"open"; "closed"}) }
+ic { has_label ⊆ (GithubIssue, Label) }
+ic { has_assignee ⊆ (GithubIssue, user) }
+ic { pull_request ⊆ GithubIssue }
+ic { issue ⊆ GithubIssue }
+// All open and closed issues must be GithubIssues, and all GithubIssues must be
 // either open or closed
-ic { open ⊆ github_issue }
-ic { closed ⊆ github_issue }
-ic { forall(x in github_issue: closed(x) xor open(x)) }
+ic { open ⊆ GithubIssue }
+ic { closed ⊆ GithubIssue }
+ic { forall(x in GithubIssue: closed(x) xor open(x)) }
 // For each of these relations, there can be only one value per issue
 ic { function(has_title) }
 ic { function(has_number) }
@@ -28,13 +31,13 @@ ic { function(closed_at) }
  * Labels
  */
 
-ic { label_name ⊆ (label, String) }
+ic { label_name ⊆ (Label, String) }
 ic { function(label_name) }
 
 /*****
  * Milestones
  */
-ic { milestone_title ⊆ (milestone, String) }
+ic { milestone_title ⊆ (Milestone, String) }
 
 /**
  * Temporal open pull requests

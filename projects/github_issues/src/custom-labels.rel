@@ -28,7 +28,8 @@ def label_name[:value][label_id] = substring[label_string, ind, num_chars[label_
  /*****
  * Labels (currently collected from labels that occur in issues)
  */
-ic { customer_label ⊆ label }
+
+ic { customer_label ⊆ Label }
 ic { current_customer_label ⊆ customer_label }
 
 def customer_label(l) =

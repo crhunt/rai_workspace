@@ -1,18 +1,14 @@
 /*****
- * Mapping github issues to a schema
+ * Mapping github issues data to a schema
  */
 
 /*****
  * GitHub issues are either pull requests or issues
  */
-def github_issue(gi) =
-    json_issue(gi, :id, gi)
 
 /**
  * Pull requests
  */
-
-ic { pull_request ⊆ github_issue }
 
 def pull_request(pr) =
     exists(json_issue[pr, :pull_request])
@@ -21,14 +17,12 @@ def pull_request(pr) =
  * Issues (not pull requests)
  */
 
-ic { issue ⊆ github_issue }
-
 def issue(gi) =
-    github_issue(gi) and
+    GithubIssue(gi) and
     not pull_request(gi)
 
 /*****
- * Common
+ * Common relationships for issues and pull requests
  */
 
 def has_number[gi] =
@@ -66,11 +60,11 @@ def has_author(gi, u) =
 
 def author = has_author[_]
 
-def has_milestone(gi, m) =
-    json_issue(gi, :milestone, :id, m)
+def has_milestone[gi] =
+    has_milestone_id[ json_issue[gi, :milestone, :node_id] ]
 
-def has_label(gi, l) =
-    json_issue(gi, :labels, :[], _, :id, l)
+def has_label[gi] =
+    has_label_id[ json_issue[gi, :labels, :[], _, :id] ]
 
 def has_assignee(gi, u) =
     json_issue(gi, :assignees, :[], _, :id, u)
@@ -102,9 +96,6 @@ def user_login(u, s) =
  * Labels (currently collected from labels that occur in issues)
  */
 
-def label(lb) =
-    json_label(lb, :id, lb)
-
 def label_name(lb, s) =
     json_label(lb, :name, s)
 
@@ -112,13 +103,10 @@ def label_name(lb, s) =
  * Milestones
  */
 
-def milestone(m) =
-    json_milestone(m, :id, m)
-
-def milestone_title[m] =
+def has_milestone_title[m] =
     json_milestone[m, :title]
 
-def has_title = milestone_title
+def has_title = has_milestone_title
 
 /**
  * Temporal open pull requests
