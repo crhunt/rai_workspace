@@ -3,7 +3,8 @@
  * Declare the files to upload for each repository. This rel can be changed to a configuration file.
  */
 def data_path = "./projects/github_issues/data/"
-def src_config[:raicode] = { (:json_labels, concat[data_path,"labels-formatted.json"]);
+def src_config[:raicode] = { (:json_repos, concat[data_path,"repo-formatted.json"]);
+                             (:json_labels, concat[data_path,"labels-formatted.json"]);
                              (:json_milestones, concat[data_path,"milestones-formatted.json"]);
                              (:json_issues, concat[data_path,"issues-formatted.json"]);
                              (:json_users, concat[data_path,"user-details-formatted.json"]); }

@@ -10,6 +10,8 @@ entity Milestone has_milestone_id = json_milestones[:[], _, :node_id]
 
 entity User has_user_id = json_users[:[], _, :node_id]
 
+entity Repository has_repo_id = json_repos[:[], _, :node_id]
+
 // Key data on globally unique entity
 
 def json_issue[gi] = json_issues[:[], i]
@@ -23,6 +25,9 @@ def json_milestone[m] = json_milestones[:[], i]
 
 def json_user[u] = json_users[:[], i]
     from i where has_user_id[ json_users[:[], i, :node_id] ](u)
+
+def json_repo[r] = json_repos[:[], i]
+    from i where has_repo_id[ json_repos[:[], i, :node_id] ](r)
 
 /**
  * Datetime utils
