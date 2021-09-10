@@ -53,7 +53,7 @@ def issue_table_row[x] =
 
 @inline
 def label_section[l] =
-    issue_section[has_label_name[l], {x: has_label(x, l) and open(x)}]
+    issue_section[label:has_name[l], {x: has_label(x, l) and open(x)}]
 
 @inline
 def assignee_section[u] =

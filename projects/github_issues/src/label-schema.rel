@@ -2,11 +2,29 @@
  * Define schema for labels
  */
 
-// Label attributes
+module repository
 
-def has_label_name[label] = json_label[label, :name]
+    def has_name[r] = json_repo[r,:name]
+    def has_fullname[r] = json_repo[r,:full_name]
 
-def has_name = has_label_name
+end
+
+
+module label
+    
+    // Label strings
+    def has_name[lb] = json_label[lb, :name]
+    def has_category(lb,cat) = has_label_category(cat,lb,_)
+    def category_value[cat][lb] = has_label_category[cat][lb]
+    def has_single_name(lb,s) = has_name(lb,s) and not has_category[_](lb,_)
+    // Belongs to repo
+    def in_repo(lb,r) = regex_match(s, json_label[lb,:url]) and 
+        repository:has_fullname(r,s)
+        from s
+
+end
+
+/*** Label attributes ***/
 
 // Get label categories, designated by a split character in the label name
 
@@ -14,21 +32,11 @@ def label_split_char = ':'
 
 def regex_label_split_char = string_join[ "|", sort[string[label_split_char]] ]
 
-def has_label_name[:category][label] = substring[label_string,1,ind-1]
+// We want cat as a relname for specialization. Doesn't work yet due to staging limitations.
+def has_label_category[cat][lb] = substring[label_string, ind+1, num_chars[label_string]]
     from label_string, ind, spl_char where
-    has_label_name(label,label_string) and
-    char(label_string,ind,spl_char) and
+    cat = substring[label_string,1,ind-1] and
+    label_string = label:has_name[lb] and
     label_split_char(spl_char) and
+    char(label_string,ind,spl_char) and
     not regex_match[regex_label_split_char, substring[label_string,1,ind-1]]
-
-def label_category = has_label_name[:category][_]
-
-def has_label_name[:value][label] = substring[label_string, ind, num_chars[label_string]]
-    from label_string, ind, cat_str where
-    has_label_name(label,label_string) and
-    has_label_name[:category](label,cat_str) and
-    ind = num_chars[cat_str] + 2
-
-def has_label_name[:singlevalue](label,label_string) =
-    has_label_name(label,label_string) and
-    not has_label_name[:category](label,_)

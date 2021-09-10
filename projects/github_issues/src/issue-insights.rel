@@ -54,7 +54,7 @@ def has_occurred_1Q(label, cnt, frac) =
 
 @inline
 def string_to_label_group(rs,l) =
-    has_label_name(l, n) and
+    label:has_name(l, n) and
     regex_match(rs, n)
     from n
 

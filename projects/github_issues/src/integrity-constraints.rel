@@ -35,8 +35,8 @@ ic { function(closed_at) }
  * Labels
  */
 
-ic { has_label_name ⊆ (Label, String) }
-ic { function(has_label_name) }
+ic { label:has_name ⊆ (Label, String) }
+ic { function(label:has_name) }
 
 /*****
  * Milestones

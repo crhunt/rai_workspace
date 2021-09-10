@@ -10,26 +10,26 @@ ic { customer_label ⊆ Label }
 ic { current_customer_label ⊆ customer_label }
 
 def customer_label(l) =
-    has_label_name(l, s) and
+    label:has_name(l, s) and
     regex_match("^customer", s)
     from s
 
 def current_customer_label(l) =
-    has_label_name(l, "customer:att") or
-    has_label_name(l, "customer:ey") or
-    has_label_name(l, "customer:lantik")
+    label:has_name(l, "customer:att") or
+    label:has_name(l, "customer:ey") or
+    label:has_name(l, "customer:lantik")
 
 def priority_urgent_label(l) =
-    has_label_name(l, "priority:urgent")
+    label:has_name(l, "priority:urgent")
 
 def priority_high_label(l) =
-    has_label_name(l, "priority:high")
+    label:has_name(l, "priority:high")
 
 def priority_medium_label(l) =
-    has_label_name(l, "priority:medium")
+    label:has_name(l, "priority:medium")
 
 def priority_low_label(l) =
-    has_label_name(l, "priority:low")
+    label:has_name(l, "priority:low")
 
 /*****
  * Priorities
@@ -67,6 +67,6 @@ def priority[i in priority_missing] = "-"
  * Components
  */
 def component_label(l) =
-    has_label_name(l, s) and
+    label:has_name(l, s) and
     regex_match("^component:", s)
     from s
