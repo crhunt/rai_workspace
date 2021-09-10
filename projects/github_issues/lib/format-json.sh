@@ -22,3 +22,4 @@ python3 -m json.tool labels.json > labels-formatted.json
 python3 -m json.tool issues.json > issues-formatted.json
 python3 -m json.tool users.json > users-formatted.json
 python3 -m json.tool user-details.json > user-details-formatted.json
+python3 -m json.tool repo.json > repo-formatted.json

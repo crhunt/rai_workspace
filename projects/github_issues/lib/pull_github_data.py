@@ -27,6 +27,12 @@ def write_paged_generator_to_file(gen, filename):
         json.dump(obj2dict(result), f)
     print("...results written to "+filename)
 
+def write_to_file(results, filename):
+    # Write results to json-formatted file
+    with open(filename, "w") as f:
+        json.dump(obj2dict(results), f)
+    print("...results written to "+filename)
+
 def get_issues():
     print("Pulling issues...")
     api = GhApi()
@@ -47,6 +53,14 @@ def get_labels():
     token = os.environ["GITHUB_TOKEN"]
     gen = paged(api.issues.list_labels_for_repo, per_page=100, owner=args.owner, repo=args.repo, token=token)
     write_paged_generator_to_file(gen, 'labels.json')
+
+def get_repo():
+    print("Pulling repo details...")
+    api = GhApi()
+    token = os.environ["GITHUB_TOKEN"]
+    results = [ api.repos.get(owner=args.owner, repo=args.repo, token=token) ]
+    # Write results to json-formatted file
+    write_to_file(results, 'repo.json')
 
 def get_users():
     print("Pulling users...")
@@ -71,13 +85,11 @@ def get_user_details():
             results.append( api.users.get_by_username(username=user['login'], token=token) )
             print(f'\rUser details pulled: {n+1} / {total}', end='\r')
         print()
-    filename = "user-details.json"
     # Write results to json-formatted file
-    with open(filename, "w") as f:
-        json.dump(obj2dict(results), f)
-    print("...results written to "+filename)
+    write_to_file(results, 'user-details.json')
 
 # Run these to pull data
+get_repo()
 get_milestones()
 get_labels()
 get_issues()
