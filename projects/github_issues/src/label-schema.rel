@@ -11,9 +11,14 @@ end
 
 
 module label
+
+    /* Attributes */
     
     // Label strings
     def has_name[lb] = json_label[lb, :name]
+    // (Want categories as relnames when becomes possible -->
+    //  need support for string to relname conversion)
+    def in_category[cat](lb) = has_label_category(cat,lb,_)
     def has_category(lb,cat) = has_label_category(cat,lb,_)
     def category_value[cat][lb] = has_label_category[cat][lb]
     def has_single_name(lb,s) = has_name(lb,s) and not has_category[_](lb,_)
@@ -21,6 +26,23 @@ module label
     def in_repo(lb,r) = regex_match(s, json_label[lb,:url]) and 
         repository:has_fullname(r,s)
         from s
+
+    /* Calculated properties */
+    
+    // How long between when an issue is created and when it is closed?
+    def duration[:issue][:mean] = label_agg_duration[mean][issue]
+    def duration[:issue][:stddev] = label_agg_duration[pop_stddev][issue]
+    def duration[:pr][:mean] = label_agg_duration[mean][pull_request]
+    def duration[:pr][:stddev] = label_agg_duration[pop_stddev][pull_request]
+    // For issues that live 90 days or less?
+    def duration[:quarter][:issue][:mean] = label_agg_duration[mean][filter_by_duration[issue][90]]
+    def duration[:quarter][:issue][:stddev] = label_agg_duration[pop_stddev][filter_by_duration[issue][90]]
+    def duration[:quarter][:pr][:mean] = label_agg_duration[mean][filter_by_duration[pull_request][90]]
+    def duration[:quarter][:pr][:stddev] = label_agg_duration[pop_stddev][filter_by_duration[pull_request][90]]
+    // Label occurance frequency
+    def frequency[lb] = count[gi: github_issue:has_label(gi,lb)]
+    def frequency[:quarter][lb] = count[gi: github_issue:has_label(gi,lb) and 
+                                            filter_by_duration[GithubIssue][90](gi)]
 
 end
 
@@ -40,3 +62,14 @@ def has_label_category[cat][lb] = substring[label_string, ind+1, num_chars[label
     label_split_char(spl_char) and
     char(label_string,ind,spl_char) and
     not regex_match[regex_label_split_char, substring[label_string,1,ind-1]]
+
+/*** Label calculated properties ***/
+
+/* Duration */
+
+@inline
+def label_agg_duration[AGG,FILTER][lb] = 
+    AGG[ gi, period: github_issue:duration(gi, period) and
+                     github_issue:has_label(gi,lb) and
+                     Label(lb) and
+                     FILTER(gi) ]

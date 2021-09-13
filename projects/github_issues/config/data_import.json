@@ -15,6 +15,10 @@
         "rel": "json_users",
         "optional": false
     },
+    "repo-formatted.json": {
+        "rel": "json_repos",
+        "optional": false
+    },
     "test.json": {
         "rel": "test_relation",
         "optional": false

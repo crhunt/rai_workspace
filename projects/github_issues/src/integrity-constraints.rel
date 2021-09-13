@@ -2,32 +2,32 @@
  * Properties common to pull requests and issues
  */
 // Constrain types for certain relations
-ic { has_issue_title ⊆ (GithubIssue, String) }
-ic { has_number ⊆ (GithubIssue, Int) }
-ic { created_at ⊆ (GithubIssue, DateTime) }
-ic { closed_at ⊆ (GithubIssue, DateTime) }
+ic { github_issue:has_title ⊆ (GithubIssue, String) }
+ic { github_issue:has_number ⊆ (GithubIssue, Int) }
+ic { github_issue:created_at ⊆ (GithubIssue, DateTime) }
+ic { github_issue:closed_at ⊆ (GithubIssue, DateTime) }
 ic { has_login ⊆ (User, String) }
 // Constrain value types
-ic { has_state ⊆ (GithubIssue, {"open"; "closed"}) }
-ic { has_label ⊆ (GithubIssue, Label) }
-ic { has_author ⊆ (GithubIssue, User) }
-ic { has_assignee ⊆ (GithubIssue, User) }
+ic { github_issue:has_state ⊆ (GithubIssue, {"open"; "closed"}) }
+ic { github_issue:has_label ⊆ (GithubIssue, Label) }
+ic { github_issue:has_author ⊆ (GithubIssue, User) }
+ic { github_issue:has_assignee ⊆ (GithubIssue, User) }
 ic { pull_request ⊆ GithubIssue }
 ic { issue ⊆ GithubIssue }
 // All open and closed issues must be GithubIssues, and all GithubIssues must be
 // either open or closed
-ic { open ⊆ GithubIssue }
-ic { closed ⊆ GithubIssue }
-ic { forall(x in GithubIssue: closed(x) xor open(x)) }
+ic { github_issue:open ⊆ GithubIssue }
+ic { github_issue:closed ⊆ GithubIssue }
+ic { forall(x in GithubIssue: github_issue:closed(x) xor github_issue:open(x)) }
 // Make sure all users exist
-ic { forall(u where has_assignee(_, u): exists(has_user_name[u])) }
+ic { forall(u where github_issue:has_assignee(_, u): exists(has_user_name[u])) }
 // For each of these relations, there can be only one value per issue
-ic { function(has_title) }
-ic { function(has_number) }
-ic { function(has_url) }
-ic { function(has_state) }
-ic { function(created_at) }
-ic { function(closed_at) }
+ic { function(github_issue:has_title) }
+ic { function(github_issue:has_number) }
+ic { function(github_issue:has_url) }
+ic { function(github_issue:has_state) }
+ic { function(github_issue:created_at) }
+ic { function(github_issue:closed_at) }
 
 // ic { forall(x in closed: exists(dt: closed_at(x, dt)) }
 

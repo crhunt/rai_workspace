@@ -3,6 +3,54 @@
  */
 
 /*****
+ * github_issue: Common relations for issues and pull requests
+ */
+
+module github_issue
+    
+    // Attributes
+    def has_number[gi] = json_issue[gi, :number]
+    def has_title[gi] = json_issue[gi, :title]
+    def has_url[gi] = json_issue[gi, :html_url]
+    def has_state[gi] = json_issue[gi, :state]
+    // Dates and status
+    def open(gi) = has_state(gi, "open")
+    def closed(gi) = has_state(gi, "closed")
+    def created_at[gi] = parse_iso_datetime[json_issue[gi, :created_at]]
+    def closed_at[gi] = parse_iso_datetime[issue_closed_at_string[gi]]
+    // User involvement
+    def has_author[gi] =
+        has_user_id[ json_issue[gi, :user, :node_id] ]
+    def has_assignee[gi] =
+        has_user_id[ json_issue[gi, :assignees, :[], _, :node_id] ]
+    // Milestones
+    def has_milestone[gi] =
+        has_milestone_id[ json_issue[gi, :milestone, :node_id] ]
+    // Labels
+    def has_label[gi] =
+        has_label_id[ json_issue[gi, :labels, :[], _, :node_id] ]
+    def in_category[cat](gi) = 
+        //has_label_category(cat,github_issue:has_label[gi],_)
+        label:in_category[cat](github_issue:has_label[gi])
+    // Belongs to repo
+    def in_repo(lb,r) = regex_match(s, json_issue[lb,:url]) and 
+        repository:has_fullname(r,s)
+        from s
+    
+    // Calculated properties
+    def duration[gi] = issue_duration[gi]
+
+end
+
+def issue_duration[gi] = ( datetime_to_nanoseconds[github_issue:closed_at[gi]] - 
+                           datetime_to_nanoseconds[github_issue:created_at[gi]] ) / (3600 * 1e9 * 24)
+
+@inline
+def filter_by_duration[FILTER](limit,gi) = issue_duration(gi,period)
+    and period < limit and FILTER(gi)
+    from period
+
+/*****
  * GitHub issues are either pull requests or issues
  */
 
@@ -21,54 +69,13 @@ def issue(gi) =
     GithubIssue(gi) and
     not pull_request(gi)
 
-/*****
- * Common relationships for issues and pull requests
- */
-
-def has_number[gi] =
-    json_issue[gi, :number]
-
-def has_issue_title[gi] =
-    json_issue[gi, :title]
-
-def has_title = has_issue_title
-
-def has_url[gi] =
-    json_issue[gi, :html_url]
-
-def has_state[gi] =
-    json_issue[gi, :state]
-
-def open(gi) =
-    has_state(gi, "open")
-
-def closed(gi) =
-    has_state(gi, "closed")
-
-def created_at[gi] =
-    parse_iso_datetime[json_issue[gi, :created_at]]
-
-def closed_at[gi] =
-    parse_iso_datetime[closed_at_string[gi]]
 
 // Internal use only
 // We're replacing null with empty string as a workaround for an open issue.
-def closed_at_string(x, s) =
+def issue_closed_at_string(x, s) =
     json_issue(x, :closed_at, s) and s != ""
 
-def has_author[gi] =
-    has_user_id[ json_issue[gi, :user, :node_id] ]
-
-def author = has_author[_]
-
-def has_milestone[gi] =
-    has_milestone_id[ json_issue[gi, :milestone, :node_id] ]
-
-def has_label[gi] =
-    has_label_id[ json_issue[gi, :labels, :[], _, :id] ]
-
-def has_assignee[gi] =
-    has_user_id[ json_issue[gi, :assignees, :[], _, :node_id] ]
+def author = github_issue:has_author[_]
 
 /*****
  * Milestones
@@ -83,14 +90,14 @@ def has_title = has_milestone_title
  * Temporal open pull requests
  */
 
-def pr_relevant_date(dt) = exists(p: pull_request(p) and created_at(p, dt))
-def pr_relevant_date(dt) = exists(p: pull_request(p) and closed_at(p, dt))
+def pr_relevant_date(dt) = exists(p: pull_request(p) and github_issue:created_at(p, dt))
+def pr_relevant_date(dt) = exists(p: pull_request(p) and github_issue:closed_at(p, dt))
 
 def open_pull_request_count_later_closed[dt in pr_relevant_date] =
-    count[p: pull_request(p) and created_at[p] <= dt < closed_at[p]]
+    count[p: pull_request(p) and github_issue:created_at[p] <= dt < github_issue:closed_at[p]]
 
 def open_pull_request_count_still_open[dt in pr_relevant_date] =
-    count[p: pull_request(p) and created_at[p] <= dt and open(p)]
+    count[p: pull_request(p) and github_issue:created_at[p] <= dt and github_issue:open(p)]
 
 def open_pull_request_count[dt in pr_relevant_date] =
     (open_pull_request_count_later_closed[dt] <++ 0) + 

@@ -35,19 +35,19 @@ def priority_low_label(l) =
  * Priorities
  */
 def priority_urgent(i) =
-    has_label(i, l)
+    github_issue:has_label(i, l)
     from l in priority_urgent_label
 
 def priority_high(i) =
-    has_label(i, l)
+    github_issue:has_label(i, l)
     from l in priority_high_label
 
 def priority_medium(i) =
-    has_label(i, l)
+    github_issue:has_label(i, l)
     from l in priority_medium_label
 
 def priority_low(i) =
-    has_label(i, l)
+    github_issue:has_label(i, l)
     from l in priority_low_label
 
 def priority_missing(i) =
@@ -66,7 +66,17 @@ def priority[i in priority_missing] = "-"
 /*****
  * Components
  */
-def component_label(l) =
-    label:has_name(l, s) and
-    regex_match("^component:", s)
-    from s
+/* label groups */
+
+@inline
+def string_to_label_group(rs,l) =
+    label:has_name(l, n) and
+    regex_match(rs, n)
+    from n
+
+def component_label(l) = string_to_label_group("^component",l)
+def complexity_label(l) = string_to_label_group("^complexity",l)
+def customer_label(l) = string_to_label_group("^customer",l)
+def feature_label(l) = string_to_label_group("^feature",l)
+def impl_label(l) = string_to_label_group("^impl",l)
+def type_label(l) = string_to_label_group("^type",l)

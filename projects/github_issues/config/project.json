@@ -8,15 +8,13 @@
     "insights": {
             "name": "insights",
             "deps": [ "data-format", "issue-schema", "label-schema", "user-schema",
-                      "issue-insights",
                       "custom-labels", "custom-reports" ],
-            "data": [ "issues-formatted.json", "labels-formatted.json", 
+            "data": [ "issues-formatted.json", "labels-formatted.json", "repo-formatted.json",
                       "milestones-formatted.json", "user-details-formatted.json" ]
         },
     "rel_import": {
         "name": "rel_import",
         "deps": [ "data-format", "issue-schema", "label-schema", "user-schema",
-                  "issue-insights",
                   "custom-labels", "custom-reports" ],
         "data": [ "data-import.rel" ]
     }
