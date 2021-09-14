@@ -2,8 +2,12 @@
  * User information
  */
 
-def has_login[u] = json_user[u,:login]
+module user
 
-def has_user_name[u] = json_user[u,:name]
+    def attribute[attr][u] = json_user[u,attr] // Expose everything
+    def has_login[u] = json_user[u,:login]
+    def has_name[u] = json_user[u,:name]
+    def has_type[u] = json_user[u,:type]
+    def created_at[u] = parse_iso_datetime[ json_user[u,:created_at] ]
 
-def has_name = has_user_name
+end

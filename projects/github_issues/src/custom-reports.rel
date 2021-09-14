@@ -32,7 +32,7 @@ def issue_number_label[x in issue] =
     concat["#", string[github_issue:has_number[x]]]
 
 def issue_assignees_present[x in issue] =
-    string_join[", ", {has_user_name[u] for u in github_issue:has_assignee[x]}]
+    string_join[", ", {user:has_name[u] for u in github_issue:has_assignee[x]}]
 
 def issue_assignees[x in issue] =
     issue_assignees_present[x] <++ ""
@@ -55,11 +55,11 @@ def issue_table_row[x] =
 
 @inline
 def label_section[l] =
-    issue_section[label:has_name[l], {x: github_issue:has_label(x, l) and open(x)}]
+    issue_section[label[:has_name][l], {x: github_issue:has_label(x, l) and open(x)}]
 
 @inline
 def assignee_section[u] =
-    issue_section[has_user_name[u], {x: github_issue:has_assignee(x, u) and open(x)}]
+    issue_section[user[:has_name][u], {x: github_issue:has_assignee(x, u) and open(x)}]
 
 @inline
 def customer_report =
