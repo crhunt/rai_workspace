@@ -40,7 +40,7 @@ end
 
 function set_project(project_name::String; scenario::AbstractString="default",
                      dbname::Symbol=:default, create_db::Bool=true, 
-                     overwrite::Bool=true)
+                     overwrite::Bool=false)
     # Set db name
     global current_dbname = set_dbname(dbname, project_name, scenario)
 
