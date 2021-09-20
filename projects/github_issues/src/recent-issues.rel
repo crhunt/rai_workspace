@@ -1,0 +1,15 @@
+/* Generate a subset of json issues just for recent issues */
+
+def today = parse_iso_datetime[json_issue[gi, :created_at]]
+
+def recent_github_issue(gi) = 
+    not github_issue:closed_at(gi,_) and
+    GithubIssue(gi)
+
+//def recent_github_issue(gi) =
+
+
+@inline
+def days_between[date1, date2] =
+    ( datetime_to_nanoseconds[date2] - 
+      datetime_to_nanoseconds[date1] ) / (3600 * 1e9 * 24)

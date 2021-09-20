@@ -20,7 +20,7 @@ ic { github_issue:open ⊆ GithubIssue }
 ic { github_issue:closed ⊆ GithubIssue }
 ic { forall(x in GithubIssue: github_issue:closed(x) xor github_issue:open(x)) }
 // Make sure all users exist
-ic { forall(u where github_issue:has_assignee(_, u): exists(user:has_name[u])) }
+ic { forall(u where github_issue:has_assignee(_, u): exists(user:name[u])) }
 // For each of these relations, there can be only one value per issue
 ic { function(github_issue:has_title) }
 ic { function(github_issue:has_number) }

@@ -32,7 +32,7 @@ def issue_number_label[x in issue] =
     concat["#", string[github_issue:has_number[x]]]
 
 def issue_assignees_present[x in issue] =
-    string_join[", ", {user:has_name[u] for u in github_issue:has_assignee[x]}]
+    string_join[", ", {user:name[u] for u in github_issue:has_assignee[x]}]
 
 def issue_assignees[x in issue] =
     issue_assignees_present[x] <++ ""
