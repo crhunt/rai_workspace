@@ -39,8 +39,7 @@ end
 # -- Set the database --
 
 function set_project(project_name::String; scenario::AbstractString="default",
-                     dbname::Symbol=:default, create_db::Bool=true, 
-                     overwrite::Bool=false)
+                     dbname::Symbol=:default, overwrite::Bool=false)
     # Set db name
     global current_dbname = set_dbname(dbname, project_name, scenario)
 
@@ -54,10 +53,9 @@ function set_project(project_name::String; scenario::AbstractString="default",
     println("Set database for project/scenario to: :$(current_dbname)")
     
     # Recreate DB
-    if create_db || overwrite
+    if overwrite
         create_database(current_conn; overwrite=overwrite)
-        overwrite ? println("Database created with dbname: :$(current_dbname)\nDatabase :$(current_dbname) overwritten.") : 
-                    println("Database created with dbname: $(current_dbname)")
+        println("Database created with dbname: :$(current_dbname)\nDatabase :$(current_dbname) overwritten.")
     end
 
 end
@@ -222,6 +220,10 @@ function replace_relation(relation_name::Symbol,
 
     pretty_print_query([relation_name], results)
 
+end
+
+function clear_local_pager()
+    run(`bash -c "rm -rf ~/.rai-server/pager"`)
 end
 
 println("Including deploy.jl")
