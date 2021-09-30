@@ -15,3 +15,13 @@ def user[attr](u,v) = json_user[u,attr](v)
               (:updated_at);
               (:id);
               (:node_id); }(attr)
+
+// Types of user
+
+def Owner(u) =
+    User(u) and
+    repository:owner(_,u)
+/*
+def Organization(u) =
+    User(u) and
+    repository:organization(_,u)*/

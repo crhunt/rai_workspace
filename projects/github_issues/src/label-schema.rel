@@ -2,44 +2,8 @@
  * Define schema for labels
  */
 
-module repository
-
-    def has_name[r] = json_repo[r,:name]
-    def has_fullname[r] = json_repo[r,:full_name]
-
-end
-
-
-/*
-module label
-
-    // Attributes 
-    
-    // Belongs to repo
-    def in_repo(lb,r) = regex_match(s, json_label[lb,:url]) and 
-        repository:has_fullname(r,s)
-        from s
-
-    // Calculated properties
-    
-    def duration[:issue][:mean] = label_duration[mean][issue]
-    def duration[:issue][:stddev] = label_duration[pop_stddev][issue]
-    def duration[:pr][:mean] = label_duration[mean][pull_request]
-    def duration[:pr][:stddev] = label_duration[pop_stddev][pull_request]
-    // For issues that live 90 days or less?
-    def duration[:quarter][:issue][:mean] = label_duration[mean][filter_by_duration[issue][90]]
-    def duration[:quarter][:issue][:stddev] = label_duration[pop_stddev][filter_by_duration[issue][90]]
-    def duration[:quarter][:pr][:mean] = label_duration[mean][filter_by_duration[pull_request][90]]
-    def duration[:quarter][:pr][:stddev] = label_duration[pop_stddev][filter_by_duration[pull_request][90]]
-    // Label occurance frequency
-    //def frequency[lb] = count[gi: github_issue:has_label(gi,lb)]
-    //def frequency[:quarter][lb] = count[gi: github_issue:has_label(gi,lb) and 
-    //                                        filter_by_duration[GithubIssue][90](gi)]
-
-end*/
-
 def label:in_repo(lb,r) = regex_match(s, json_label[lb,:url]) and 
-        repository:has_fullname(r,s)
+        repository:has:fullname(r,s)
         from s
 
 // Label attributes 
