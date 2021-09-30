@@ -11,17 +11,25 @@ end
 
 
 def user[attr](u,v) = json_user[u,attr](v)
-    and not { (:created_at);
-              (:updated_at);
-              (:id);
-              (:node_id); }(attr)
+    and supported_attributes:user(attr)
 
 // Types of user
 
 def Owner(u) =
     User(u) and
     repository:owner(_,u)
-/*
+
 def Organization(u) =
     User(u) and
-    repository:organization(_,u)*/
+    repository:organization(_,u)
+
+/**
+  These attributes we can include directly. Attributes not included here require
+  data transformation first to include in the model. For example, dates require parsing.
+  */
+def supported_attributes:user = attr
+    from u,attr,v where json_user(u,attr,v) and
+    not { :created_at;
+          :updated_at;
+          :id;
+          :node_id; }(attr)

@@ -35,7 +35,9 @@ def repository:has:permissions[attr][r] = json_repo[r][:permissions][attr]
   */
 def supported_attributes:repo = attr
     from r,attr,v where json_repo(r,attr,v) and
-    not { :owner;
+    not { :id;
+          :node_id;
+          :owner;
           :license;
           :organization;
           :created_at;

@@ -2,15 +2,14 @@
  * Define schema for labels
  */
 
+// Label repository
 def label:in_repo(lb,r) = regex_match(s, json_label[lb,:url]) and 
-        repository:has:fullname(r,s)
-        from s
+    repository:has:fullname(r,s)
+    from s
 
 // Label attributes 
 def label:has[attr](lb,v) = json_label[lb,attr](v)
-    and not { (:id);
-              (:node_id); }(attr)
-
+    and supported_attributes:label(attr)
 
 // Label categories 
 def label:in[attr][lb] = has_label_category[cat][lb]
@@ -33,7 +32,20 @@ def label:count[lb] = count[gi: github_issue:has_label(gi,lb)]
 @inline
 def label:count_period[p][lb] = label_count_period[p][lb]
 
-/*** Parse label name ***/
+
+/*** Label attributes ***/
+
+/**
+  These attributes we can include directly.
+  */
+def supported_attributes:label = attr
+    from lb,attr,v where json_repo(lb,attr,v) and
+    not { :id;
+          :node_id; }(attr)
+
+/*** Label categories ***/
+
+/* Parse label name */
 
 // Get label categories, designated by a split character in the label name
 
