@@ -85,6 +85,20 @@ def get_user_details():
             results.append( api.users.get_by_username(username=user['login'], token=token) )
             print(f'\rUser details pulled: {n+1} / {total}', end='\r')
         print()
+    with open('repo.json', "r") as f:
+        # Ownership of repository
+        repos = json.load(f)
+        cnt = 0
+        print(f'\rUser details pulled: {cnt}', end='\r')
+        for m,repo in enumerate(repos):
+            # Get details for the user and extend to list results
+            cnt +=1
+            results.append( api.users.get_by_username(username=repo['owner']['login'], token=token) )
+            if 'organization' in repo.keys():
+                cnt += 1
+                results.append( api.users.get_by_username(username=repo['organization']['login'], token=token) )
+            print(f'\rRepo owner details pulled: {cnt}', end='\r')
+        print()
     # Write results to json-formatted file
     write_to_file(results, 'user-details.json')
 
