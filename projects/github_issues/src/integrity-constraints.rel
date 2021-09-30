@@ -35,8 +35,8 @@ ic { function(github_issue:closed_at) }
  * Labels
  */
 
-ic { label:has_name ⊆ (Label, String) }
-ic { function(label:has_name) }
+ic { label:name ⊆ (Label, String) }
+ic { function(label:name) }
 
 /*****
  * Milestones

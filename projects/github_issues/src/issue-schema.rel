@@ -29,10 +29,11 @@ module github_issue
     // Labels
     def has_label[gi] =
         has_label_id[ json_issue[gi, :labels, :[], _, :node_id] ]
-    def label_category[cat](gi,v) = 
-        label[:category_value][cat][ github_issue:has_label[gi] ](v)
+    /*def label_category[cat](gi,v) = 
+        label[cat][ github_issue:has_label[gi] ](v) and
+        label:in[cat]( github_issue:has_label[gi] )
     def in_category[cat](gi) = 
-        label:in_category[cat]( github_issue:has_label[gi] )
+        label:in[cat]( github_issue:has_label[gi] )*/
     // Belongs to repo
     def in_repo(lb,r) = regex_match(s, json_issue[lb,:url]) and 
         repository:has_fullname(r,s)
@@ -42,6 +43,8 @@ module github_issue
     def duration[gi] = issue_duration[gi]
 
 end
+
+// Issue duration calculation
 
 def issue_duration[gi] = ( datetime_to_nanoseconds[github_issue:closed_at[gi]] - 
                            datetime_to_nanoseconds[github_issue:created_at[gi]] ) / (3600 * 1e9 * 24)
@@ -75,6 +78,9 @@ def issue(gi) =
 // We're replacing null with empty string as a workaround for an open issue.
 def issue_closed_at_string(x, s) =
     json_issue(x, :closed_at, s) and s != ""
+
+def issue_created_at[gi] = parse_iso_datetime[json_issue[gi, :created_at]]
+def issue_closed_at[gi] = parse_iso_datetime[issue_closed_at_string[gi]]
 
 def author = github_issue:has_author[_]
 
