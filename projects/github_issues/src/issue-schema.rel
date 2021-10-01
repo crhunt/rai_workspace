@@ -11,8 +11,8 @@
 def github_issue:has[attr](gi,v) = json_issue[gi,attr](v)
     and supported_attributes:github_issue(attr)
 
-def open(gi) = github_issue:has:state(gi, "open")
-def closed(gi) = github_issue:has:state(gi, "closed")
+def github_issue:open(gi) = github_issue:has:state(gi, "open")
+def github_issue:closed(gi) = github_issue:has:state(gi, "closed")
 
 // User involvement
 def github_issue:author[gi] =
@@ -24,7 +24,7 @@ def github_issue:assignee[gi] =
 
 module github_issue
     
-    // Dates and status
+    // Dates
     def created_at[gi] = parse_iso_datetime[json_issue[gi, :created_at]]
     def closed_at[gi] = parse_iso_datetime[issue_closed_at_string[gi]]
     // Milestones
@@ -81,18 +81,6 @@ def Issue(gi) =
 // We're replacing null with empty string as a workaround for an open issue.
 def issue_closed_at_string(x, s) =
     json_issue(x, :closed_at, s) and s != ""
-
-def issue_created_at[gi] = parse_iso_datetime[json_issue[gi, :created_at]]
-def issue_closed_at[gi] = parse_iso_datetime[issue_closed_at_string[gi]]
-
-/*****
- * Milestones
- */
-
-def has_milestone_title[m] =
-    json_milestone[m, :title]
-
-def has_title = has_milestone_title
 
 /**
  * Temporal open pull requests

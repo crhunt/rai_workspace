@@ -31,6 +31,10 @@ def Assignee(u) =
     User(u) and
     github_issue:assignee(_,u)
 
+def Creator(u) =
+    User(u) and
+    milestone:creator(_,u)
+
 /**
   These attributes we can include directly. Attributes not included here require
   data transformation first to include in the model. For example, dates require parsing.

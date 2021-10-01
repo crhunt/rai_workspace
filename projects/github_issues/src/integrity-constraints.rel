@@ -41,7 +41,7 @@ ic { function(label:has:name) }
 /*****
  * Milestones
  */
-ic { milestone_title ⊆ (Milestone, String) }
+ic { milestone:has:title ⊆ (Milestone, String) }
 
 /**
  * Temporal open pull requests
