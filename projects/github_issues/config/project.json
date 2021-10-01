@@ -14,7 +14,8 @@
         },
     "rel_import": {
         "name": "rel_import",
-        "deps": [ "data-format", "issue-schema", "label-schema", "user-schema", "repo-schema"],
+        "deps": [ "data-format", "issue-schema", "label-schema", "user-schema", "repo-schema",
+                  "custom-reports"],
         "data": [ "data-import.rel" ]
     }
 }

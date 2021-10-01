@@ -29,11 +29,10 @@ module github_issue
     // Labels
     def has_label[gi] =
         has_label_id[ json_issue[gi, :labels, :[], _, :node_id] ]
-    /*def label_category[cat](gi,v) = 
-        label[cat][ github_issue:has_label[gi] ](v) and
-        label:in[cat]( github_issue:has_label[gi] )
+    def label_category[cat](gi,v) = 
+        label:in[cat][ github_issue:has_label[gi] ](v)
     def in_category[cat](gi) = 
-        label:in[cat]( github_issue:has_label[gi] )*/
+        label:in[cat][ github_issue:has_label[gi] ](_)
     // Belongs to repo
     def in_repo(lb,r) = regex_match(s, json_issue[lb,:url]) and 
         repository:has:fullname(r,s)
