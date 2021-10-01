@@ -10,7 +10,7 @@ module user
 end
 
 
-def user[attr](u,v) = json_user[u,attr](v)
+def user:has[attr](u,v) = json_user[u,attr](v)
     and supported_attributes:user(attr)
 
 // Types of user
@@ -22,6 +22,14 @@ def Owner(u) =
 def Organization(u) =
     User(u) and
     repository:organization(_,u)
+
+def Author(u) =
+    User(u) and
+    github_issue:has_author(_,u)
+
+def Assignee(u) =
+    User(u) and
+    github_issue:has_assignee(_,u)
 
 /**
   These attributes we can include directly. Attributes not included here require
