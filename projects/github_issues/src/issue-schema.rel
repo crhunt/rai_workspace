@@ -86,14 +86,14 @@ def issue_closed_at_string(x, s) =
  * Temporal open pull requests
  */
 
-def pr_relevant_date(dt) = exists(p: pull_request(p) and github_issue:created_at(p, dt))
-def pr_relevant_date(dt) = exists(p: pull_request(p) and github_issue:closed_at(p, dt))
+def pr_relevant_date(dt) = exists(p: PullRequest(p) and github_issue:created_at(p, dt))
+def pr_relevant_date(dt) = exists(p: PullRequest(p) and github_issue:closed_at(p, dt))
 
 def open_pull_request_count_later_closed[dt in pr_relevant_date] =
-    count[p: pull_request(p) and github_issue:created_at[p] <= dt < github_issue:closed_at[p]]
+    count[p: PullRequest(p) and github_issue:created_at[p] <= dt < github_issue:closed_at[p]]
 
 def open_pull_request_count_still_open[dt in pr_relevant_date] =
-    count[p: pull_request(p) and github_issue:created_at[p] <= dt and github_issue:open(p)]
+    count[p: PullRequest(p) and github_issue:created_at[p] <= dt and github_issue:open(p)]
 
 def open_pull_request_count[dt in pr_relevant_date] =
     (open_pull_request_count_later_closed[dt] <++ 0) + 

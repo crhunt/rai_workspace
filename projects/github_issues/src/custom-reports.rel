@@ -28,13 +28,13 @@ def issue_table[R] =
 def issue_number_label[x in PullRequest] =
     concat["PR&nbsp;#", string[github_issue:has:number[x]]]
 
-def issue_number_label[x in issue] =
+def issue_number_label[x in Issue] =
     concat["#", string[github_issue:has:number[x]]]
 
-def issue_assignees_present[x in issue] =
+def issue_assignees_present[x in Issue] =
     string_join[", ", {user:has:name[u] for u in github_issue:has:assignee[x]}]
 
-def issue_assignees[x in issue] =
+def issue_assignees[x in Issue] =
     issue_assignees_present[x] <++ ""
 
 def issue_table_row[x] =
