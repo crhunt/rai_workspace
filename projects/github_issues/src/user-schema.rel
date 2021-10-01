@@ -25,11 +25,11 @@ def Organization(u) =
 
 def Author(u) =
     User(u) and
-    github_issue:has_author(_,u)
+    github_issue:author(_,u)
 
 def Assignee(u) =
     User(u) and
-    github_issue:has_assignee(_,u)
+    github_issue:assignee(_,u)
 
 /**
   These attributes we can include directly. Attributes not included here require

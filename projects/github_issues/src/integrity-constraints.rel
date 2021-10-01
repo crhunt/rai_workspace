@@ -2,30 +2,30 @@
  * Properties common to pull requests and issues
  */
 // Constrain types for certain relations
-ic { github_issue:has_title ⊆ (GithubIssue, String) }
-ic { github_issue:has_number ⊆ (GithubIssue, Int) }
+ic { github_issue:has:title ⊆ (GithubIssue, String) }
+ic { github_issue:has:number ⊆ (GithubIssue, Int) }
 ic { github_issue:created_at ⊆ (GithubIssue, DateTime) }
 ic { github_issue:closed_at ⊆ (GithubIssue, DateTime) }
-ic { has_login ⊆ (User, String) }
+ic { user:has:login ⊆ (User, String) }
 // Constrain value types
-ic { github_issue:has_state ⊆ (GithubIssue, {"open"; "closed"}) }
-ic { github_issue:has_label ⊆ (GithubIssue, Label) }
-ic { github_issue:has_author ⊆ (GithubIssue, User) }
-ic { github_issue:has_assignee ⊆ (GithubIssue, User) }
-ic { pull_request ⊆ GithubIssue }
-ic { issue ⊆ GithubIssue }
+ic { github_issue:has:state ⊆ (GithubIssue, {"open"; "closed"}) }
+ic { github_issue:label ⊆ (GithubIssue, Label) }
+ic { github_issue:author ⊆ (GithubIssue, User) }
+ic { github_issue:assignee ⊆ (GithubIssue, User) }
+ic { PullRequest ⊆ GithubIssue }
+ic { Issue ⊆ GithubIssue }
 // All open and closed issues must be GithubIssues, and all GithubIssues must be
 // either open or closed
 ic { github_issue:open ⊆ GithubIssue }
 ic { github_issue:closed ⊆ GithubIssue }
 ic { forall(x in GithubIssue: github_issue:closed(x) xor github_issue:open(x)) }
 // Make sure all users exist
-ic { forall(u where github_issue:has_assignee(_, u): exists(user:name[u])) }
+ic { forall(u where github_issue:assignee(_, u): exists(user:has:name[u])) }
 // For each of these relations, there can be only one value per issue
-ic { function(github_issue:has_title) }
-ic { function(github_issue:has_number) }
-ic { function(github_issue:has_url) }
-ic { function(github_issue:has_state) }
+ic { function(github_issue:has:title) }
+ic { function(github_issue:has:number) }
+ic { function(github_issue:has:url) }
+ic { function(github_issue:has:state) }
 ic { function(github_issue:created_at) }
 ic { function(github_issue:closed_at) }
 
@@ -35,8 +35,8 @@ ic { function(github_issue:closed_at) }
  * Labels
  */
 
-ic { label:name ⊆ (Label, String) }
-ic { function(label:name) }
+ic { label:has:name ⊆ (Label, String) }
+ic { function(label:has:name) }
 
 /*****
  * Milestones

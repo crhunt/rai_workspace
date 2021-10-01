@@ -6,33 +6,37 @@
  * github_issue: Common relations for issues and pull requests
  */
 
+// Attributes
+
+def github_issue:has[attr](gi,v) = json_issue[gi,attr](v)
+    and supported_attributes:github_issue(attr)
+
+def open(gi) = github_issue:has:state(gi, "open")
+def closed(gi) = github_issue:has:state(gi, "closed")
+
+// User involvement
+def github_issue:author[gi] =
+        has_user_id[ json_issue[gi, :user, :node_id] ]
+
+def github_issue:assignee[gi] =
+        has_user_id[ json_issue[gi, :assignees, :[], _, :node_id] ]
+
+
 module github_issue
     
-    // Attributes
-    def has_number[gi] = json_issue[gi, :number]
-    def has_title[gi] = json_issue[gi, :title]
-    def has_url[gi] = json_issue[gi, :html_url]
-    def has_state[gi] = json_issue[gi, :state]
     // Dates and status
-    def open(gi) = has_state(gi, "open")
-    def closed(gi) = has_state(gi, "closed")
     def created_at[gi] = parse_iso_datetime[json_issue[gi, :created_at]]
     def closed_at[gi] = parse_iso_datetime[issue_closed_at_string[gi]]
-    // User involvement
-    def has_author[gi] =
-        has_user_id[ json_issue[gi, :user, :node_id] ]
-    def has_assignee[gi] =
-        has_user_id[ json_issue[gi, :assignees, :[], _, :node_id] ]
     // Milestones
-    def has_milestone[gi] =
+    def milestone[gi] =
         has_milestone_id[ json_issue[gi, :milestone, :node_id] ]
     // Labels
-    def has_label[gi] =
+    def label[gi] =
         has_label_id[ json_issue[gi, :labels, :[], _, :node_id] ]
     def label_category[cat](gi,v) = 
-        label:in[cat][ github_issue:has_label[gi] ](v)
+        label:in[cat][ github_issue:label[gi] ](v)
     def in_category[cat](gi) = 
-        label:in[cat][ github_issue:has_label[gi] ](_)
+        label:in[cat][ github_issue:label[gi] ](_)
     // Belongs to repo
     def in_repo(lb,r) = regex_match(s, json_issue[lb,:url]) and 
         repository:has:fullname(r,s)
@@ -61,16 +65,16 @@ def filter_by_duration[FILTER](limit,gi) = issue_duration(gi,period)
  * Pull requests
  */
 
-def pull_request(pr) =
+def PullRequest(pr) =
     exists(json_issue[pr, :pull_request])
 
 /**
  * Issues (not pull requests)
  */
 
-def issue(gi) =
+def Issue(gi) =
     GithubIssue(gi) and
-    not pull_request(gi)
+    not PullRequest(gi)
 
 
 // Internal use only
@@ -80,8 +84,6 @@ def issue_closed_at_string(x, s) =
 
 def issue_created_at[gi] = parse_iso_datetime[json_issue[gi, :created_at]]
 def issue_closed_at[gi] = parse_iso_datetime[issue_closed_at_string[gi]]
-
-def author = github_issue:has_author[_]
 
 /*****
  * Milestones
@@ -108,3 +110,20 @@ def open_pull_request_count_still_open[dt in pr_relevant_date] =
 def open_pull_request_count[dt in pr_relevant_date] =
     (open_pull_request_count_later_closed[dt] <++ 0) + 
     (open_pull_request_count_still_open[dt] <++ 0)
+
+/**
+  These attributes we can include directly. Attributes not included here require
+  data transformation first to include in the model. For example, dates require parsing.
+  */
+
+def supported_attributes:github_issue = attr
+    from u,attr,v where json_issue(u,attr,v) and
+    not { :created_at;
+          :updated_at;
+          :closed_at;
+          :id;
+          :node_id;
+          :user;
+          :labels;
+          :milestone;
+          :reactions; }(attr)

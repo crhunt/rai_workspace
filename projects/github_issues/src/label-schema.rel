@@ -19,7 +19,7 @@ def label:in[attr][lb] = has_label_category[cat][lb]
 def label:category_string[attr] = category_relname[attr]
 
 // How long between when an issue is created and when it is closed?
-// FILTER can take values issue, pull_request, GithubIssue
+// FILTER can take values Issue, PullRequest, GithubIssue
 @inline
 def label:duration[FILTER,AGG] = label_duration[FILTER,AGG]
 // Doesn't work yet, use label_duration_period
@@ -27,7 +27,7 @@ def label:duration[FILTER,AGG] = label_duration[FILTER,AGG]
 def label:duration_period[FILTER,AGG][p] = label_duration_period[FILTER,AGG][p]
 
 // How frequently does a label occur?
-def label:count[lb] = count[gi: github_issue:has_label(gi,lb)]
+def label:count[lb] = count[gi: github_issue:label(gi,lb)]
 // Doesn't work yet, use label_count_period
 @inline
 def label:count_period[p][lb] = label_count_period[p][lb]
@@ -74,7 +74,7 @@ def category_relname(c,s) = parse_json[ category_json_string[s] ](c)
 @inline
 def label_duration[FILTER,AGG][lb] = 
     AGG[ gi, period: issue_duration(gi, period) and // github_issue:duration
-                     github_issue:has_label(gi,lb) and // github_issue:has_label
+                     github_issue:label(gi,lb) and // github_issue:label
                      FILTER(gi) and
                      Label(lb) ]
 
@@ -86,5 +86,5 @@ def label_duration_period[FILTER,AGG][p] =
 
 @inline
 def label_count_period[p][lb] =
-    count[gi: github_issue:has_label(gi,lb) and 
+    count[gi: github_issue:label(gi,lb) and 
               filter_by_duration[GithubIssue][p](gi)]

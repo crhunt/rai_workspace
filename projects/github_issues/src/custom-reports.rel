@@ -25,14 +25,14 @@ def issue_table[R] =
         concat[string_join["", {issue_table_row[i] for i in R}],
             "</tbody></table>"]]
 
-def issue_number_label[x in pull_request] =
-    concat["PR&nbsp;#", string[github_issue:has_number[x]]]
+def issue_number_label[x in PullRequest] =
+    concat["PR&nbsp;#", string[github_issue:has:number[x]]]
 
 def issue_number_label[x in issue] =
-    concat["#", string[github_issue:has_number[x]]]
+    concat["#", string[github_issue:has:number[x]]]
 
 def issue_assignees_present[x in issue] =
-    string_join[", ", {user:name[u] for u in github_issue:has_assignee[x]}]
+    string_join[", ", {user:has:name[u] for u in github_issue:has:assignee[x]}]
 
 def issue_assignees[x in issue] =
     issue_assignees_present[x] <++ ""
@@ -41,9 +41,9 @@ def issue_table_row[x] =
     concat["<tr><td>",
         concat[issue_number_label[x],
             concat["</td><td><a href=\"",
-                concat[github_issue:has_url[x],
+                concat[github_issue:has:html_url[x],
                     concat["\">",
-                        concat[github_issue:has_title[x],
+                        concat[github_issue:has:title[x],
                             concat["</a></td>",
                                 concat["<td>",
                                     concat[priority[x],
@@ -55,11 +55,11 @@ def issue_table_row[x] =
 
 @inline
 def label_section[l] =
-    issue_section[label[:name][l], {x: github_issue:has_label(x, l) and open(x)}]
+    issue_section[label[:name][l], {x: github_issue:label(x, l) and open(x)}]
 
 @inline
 def assignee_section[u] =
-    issue_section[user[:name][u], {x: github_issue:has_assignee(x, u) and open(x)}]
+    issue_section[user[:name][u], {x: github_issue:has:assignee(x, u) and open(x)}]
 
 @inline
 def customer_report =
@@ -76,7 +76,7 @@ def priority[gi]= github_issue:label_category[cat][gi]
 
 def priority[gi] = missing_value
     from missing_value where
-    issue(gi) and
+    Issue(gi) and
     not github_issue:label_category:priority(gi,_) and
     missing_value = "-"
 
