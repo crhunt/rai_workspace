@@ -26,8 +26,9 @@ def label:category_string[attr] = category_relname[attr]
 
 // How long between when an issue is created and when it is closed?
 // FILTER can take values Issue, PullRequest, GithubIssue
-// TO DO: minimal issue around why Label(lb) needs to be included to materialize :(
-//        label:duration:agg, but not necessary for other label:duration:...
+// TO DO: minimal issue around why ...
+//        query(current_conn,"""def myoutput(lb,v) = label:duration:agg[Issue][mean](lb,v)""",outputs=[:myoutput]) works, but
+//        query(current_conn,"""def myoutput = label:duration:agg[Issue][mean]""",outputs=[:myoutput]) aborts
 @inline
 def label:duration:agg[FILTER,AGG][lb] = label_duration[FILTER,AGG][lb]
 // Doesn't work with relnames yet, use label_duration_period
