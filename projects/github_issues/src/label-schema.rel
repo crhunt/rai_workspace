@@ -4,7 +4,7 @@
 
 // Label repository
 def label:in_repo(lb,r) = regex_match(s, json_label[lb,:url]) and 
-    repository:has:fullname(r,s)
+    repository:has:full_name(r,s)
     from s
 
 // Label attributes 

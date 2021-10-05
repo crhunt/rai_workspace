@@ -3,11 +3,16 @@
  * Declare the files to upload for each repository. This rel can be changed to a configuration file.
  */
 def data_path = "./projects/github_issues/data/"
-def src_config[:raicode] = { (:json_repos, concat[data_path,"repo-formatted.json"]);
-                             (:json_labels, concat[data_path,"labels-formatted.json"]);
-                             (:json_milestones, concat[data_path,"milestones-formatted.json"]);
-                             (:json_issues, concat[data_path,"issues-formatted.json"]);
-                             (:json_users, concat[data_path,"user-details-formatted.json"]); }
+def src_config[:raicode] = { (:json_repos, concat[data_path,"raicode-repo.json"]);
+                             (:json_labels, concat[data_path,"raicode-labels.json"]);
+                             (:json_milestones, concat[data_path,"raicode-milestones.json"]);
+                             (:json_issues, concat[data_path,"raicode-issues.json"]);
+                             (:json_users, concat[data_path,"raicode-user-details.json"]); }
+def src_config[:raidocs] = { (:json_repos, concat[data_path,"raidocs-repo.json"]);
+                             (:json_labels, concat[data_path,"raidocs-labels.json"]);
+                             (:json_milestones, concat[data_path,"raidocs-milestones.json"]);
+                             (:json_issues, concat[data_path,"raidocs-issues.json"]);
+                             (:json_users, concat[data_path,"raidocs-user-details.json"]); }
 
 
 /* Insert data
@@ -15,12 +20,13 @@ def src_config[:raicode] = { (:json_repos, concat[data_path,"repo-formatted.json
  * Note: The json_* relations are overloaded across all repositories.
  */
 
-// Repositories in source
-def repositories(repo) = src_config[repo](v...) from v...
+// Repositories to load
+def repositories = { :raicode;
+                     :raidocs; }
 
 // Set paths
 def data_config[repo][name][:path] = src_config[repo][name]
 
 // Insert data
-def insert[name] = load_json[data_config[repo][name]]
-    from repo where repositories(repo)
+def insert[name][repo](k...,v) = load_json[data_config[repo][name]](k...,v) and
+    repositories(repo)

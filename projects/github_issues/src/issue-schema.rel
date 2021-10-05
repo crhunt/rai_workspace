@@ -39,7 +39,7 @@ module github_issue
         label:in[cat][ github_issue:label[gi] ](_)
     // Belongs to repo
     def in_repo(lb,r) = regex_match(s, json_issue[lb,:url]) and 
-        repository:has:fullname(r,s)
+        repository:has:full_name(r,s)
         from s
     
     // Calculated properties

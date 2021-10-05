@@ -22,7 +22,7 @@ module milestone
     def closed_at[m] = parse_iso_datetime[milestone_closed_at_string[m]]
     // Belongs to repo
     def in_repo(m,r) = regex_match(s, json_milestone[m,:url]) and 
-        repository:has:fullname(r,s)
+        repository:has:full_name(r,s)
         from s
 
 end
