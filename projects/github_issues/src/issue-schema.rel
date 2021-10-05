@@ -56,6 +56,9 @@ def issue_duration[gi] = ( datetime_to_nanoseconds[github_issue:closed_at[gi]] -
 def filter_by_duration[FILTER](limit,gi) = issue_duration(gi,period)
     and period < limit and FILTER(gi)
     from period
+/*
+@inline
+def ordered_by_duration[FILTER](limit)*/
 
 /*****
  * GitHub issues are either pull requests or issues

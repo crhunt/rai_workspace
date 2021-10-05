@@ -72,12 +72,14 @@ def assignee_report =
 /* Label: Priority */
 
 def priority[gi]= github_issue:label_category[cat][gi] 
-    from cat where { :priority; }(cat)
+    //from cat where { :priority; }(cat)
+    from cat where cat = "priority"
 
 def priority[gi] = missing_value
     from missing_value where
     Issue(gi) and
-    not github_issue:label_category:priority(gi,_) and
+    //not github_issue:label_category:priority(gi,_) and
+    not github_issue:label_category["priority"](gi,_) and
     missing_value = "-"
 
 /* Label: Customer */
@@ -86,9 +88,11 @@ ic { customer_label ⊆ Label }
 ic { current_customer_label ⊆ customer_label }
 
 def customer_label(l) =
-    label:in:customer(l,_)
+    //label:in:customer(l,_)
+    label:in["customer"](l,_)
 
 def current_customer_name = {"att"; "ey"; "lantik"}
 
 def current_customer_label(l) =
-    label:in:customer(l,current_customer_name)
+    //label:in:customer(l,current_customer_name)
+    label:in["customer"](l,current_customer_name)

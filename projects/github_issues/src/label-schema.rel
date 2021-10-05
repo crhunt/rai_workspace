@@ -12,9 +12,11 @@ def label:has[attr](lb,v) = json_label[lb,attr](v)
     and supported_attributes:label(attr)
 
 // Label categories 
+def label:in[cat][lb] = has_label_category[cat][lb]
+/* Need better relname support
 def label:in[attr][lb] = has_label_category[cat][lb]
     from cat where
-    category_relname(attr,cat)
+    category_relname(attr,cat)*/
 
 def label:category_string[attr] = category_relname[attr]
 
@@ -88,3 +90,11 @@ def label_duration_period[FILTER,AGG][p] =
 def label_count_period[p][lb] =
     count[gi: github_issue:label(gi,lb) and 
               filter_by_duration[GithubIssue][p](gi)]
+
+/*
+@inline
+def label_count_percentile[p][lb] =
+    AGG[ gi, period: issue_duration(gi, period) and // github_issue:duration
+                     github_issue:label(gi,lb) and // github_issue:label
+                     FILTER(gi) and
+                     Label(lb) ]*/
