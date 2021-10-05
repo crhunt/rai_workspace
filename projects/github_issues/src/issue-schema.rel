@@ -47,6 +47,8 @@ module github_issue
 
 end
 
+def issue_label[gi] = has_label_id[ json_issue[gi, :labels, :[], _, :node_id] ]
+
 // Issue duration calculation
 
 def issue_duration[gi] = ( datetime_to_nanoseconds[github_issue:closed_at[gi]] - 
@@ -56,9 +58,11 @@ def issue_duration[gi] = ( datetime_to_nanoseconds[github_issue:closed_at[gi]] -
 def filter_by_duration[FILTER](limit,gi) = issue_duration(gi,period)
     and period < limit and FILTER(gi)
     from period
-/*
+
 @inline
-def ordered_by_duration[FILTER](limit)*/
+def ordered_by_duration[FILTER](i,gi,d) = 
+    sort[ sd, sgi: issue_duration(sgi,sd) and
+                   FILTER(sgi) ](i,d,gi)
 
 /*****
  * GitHub issues are either pull requests or issues

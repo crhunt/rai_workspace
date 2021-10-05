@@ -11,6 +11,10 @@ def label:in_repo(lb,r) = regex_match(s, json_label[lb,:url]) and
 def label:has[attr](lb,v) = json_label[lb,attr](v)
     and supported_attributes:label(attr)
 
+// Issues with label
+def label:tagged_in(lb,gi) =
+        has_label_id[ json_issue[gi, :labels, :[], _, :node_id] ](lb)
+
 // Label categories 
 def label:in[cat][lb] = has_label_category[cat][lb]
 /* Need better relname support
@@ -22,17 +26,21 @@ def label:category_string[attr] = category_relname[attr]
 
 // How long between when an issue is created and when it is closed?
 // FILTER can take values Issue, PullRequest, GithubIssue
+// TO DO: minimal issue around why Label(lb) needs to be included to materialize :(
+//        label:duration:agg, but not necessary for other label:duration:...
 @inline
-def label:duration[FILTER,AGG] = label_duration[FILTER,AGG]
-// Doesn't work yet, use label_duration_period
+def label:duration:agg[FILTER,AGG][lb] = label_duration[FILTER,AGG][lb]
+// Doesn't work with relnames yet, use label_duration_period
 @inline
-def label:duration_period[FILTER,AGG][p] = label_duration_period[FILTER,AGG][p]
+def label:duration:period[FILTER,AGG][p] = label_duration_period[FILTER,AGG][p]
+@inline
+def label:duration:percentile[FILTER][p][lb] = label_duration_percentile[FILTER][p][lb]
 
 // How frequently does a label occur?
-def label:count[lb] = count[gi: github_issue:label(gi,lb)]
-// Doesn't work yet, use label_count_period
+def label:count:all[lb] = count[gi: github_issue:label(gi,lb)]
+// Doesn't work with relnames yet, use label_count_period
 @inline
-def label:count_period[p][lb] = label_count_period[p][lb]
+def label:count:period[p][lb] = label_count_period[p][lb]
 
 
 /*** Label attributes ***/
@@ -74,15 +82,25 @@ def category_relname(c,s) = parse_json[ category_json_string[s] ](c)
 /* Duration */
 
 @inline
-def label_duration[FILTER,AGG][lb] = 
-    AGG[ gi, period: issue_duration(gi, period) and // github_issue:duration
-                     github_issue:label(gi,lb) and // github_issue:label
-                     FILTER(gi) and
-                     Label(lb) ]
+def label_duration[FILTER,AGG][lb](v) = 
+    AGG[ gi, period: github_issue:duration(gi, period) and // github_issue:duration, issue_duration
+                     github_issue:label(gi,lb) and // github_issue:label, issue_label
+                     //GithubIssue(gi) and
+                     //Label(lb) and
+                     FILTER(gi) ](v)
 
 @inline
 def label_duration_period[FILTER,AGG][p] = 
     label_duration[ filter_by_duration[FILTER][p] ][AGG]
+
+@inline
+def label_duration_percentile[FILTER][p][lb] = ordered_by_duration[ label:tagged_in[lb] ][i,gi]
+    from i,gi,cnt,float_i where
+    cnt = count[ ordered_by_duration[ label:tagged_in[lb] ] ] and
+    float_i = p*cnt/100 and
+    i = float_int_convert[ round[:ROUND_NEAREST, float_i] ] and
+    Label(lb) and
+    FILTER(gi)
 
 /* Count (Frequency) */
 
@@ -90,11 +108,3 @@ def label_duration_period[FILTER,AGG][p] =
 def label_count_period[p][lb] =
     count[gi: github_issue:label(gi,lb) and 
               filter_by_duration[GithubIssue][p](gi)]
-
-/*
-@inline
-def label_count_percentile[p][lb] =
-    AGG[ gi, period: issue_duration(gi, period) and // github_issue:duration
-                     github_issue:label(gi,lb) and // github_issue:label
-                     FILTER(gi) and
-                     Label(lb) ]*/
