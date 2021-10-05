@@ -83,12 +83,12 @@ def category_relname(c,s) = parse_json[ category_json_string[s] ](c)
 /* Duration */
 
 @inline
-def label_duration[FILTER,AGG][lb](v) = 
+def label_duration[FILTER,AGG][lb] = 
     AGG[ gi, period: github_issue:duration(gi, period) and // github_issue:duration, issue_duration
                      github_issue:label(gi,lb) and // github_issue:label, issue_label
                      //GithubIssue(gi) and
                      //Label(lb) and
-                     FILTER(gi) ](v)
+                     FILTER(gi) ]
 
 @inline
 def label_duration_period[FILTER,AGG][p] = 
