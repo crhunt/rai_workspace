@@ -18,13 +18,12 @@ def label:tagged_in(lb,gi) =
         has_label_id[ json_issue[gi, :labels, :[], _, :node_id] ](lb)
 
 // Label categories 
-def label:in[cat][lb] = has_label_category[cat][lb]
-/* Need better relname support before we can relname the categories
-def label:in[attr][lb] = has_label_category[cat][lb]
-    from cat where
-    category_relname(attr,cat)*/
+//def label:in[cat][lb] = has_label_category[cat][lb]
+def label:in[cat][lb] = has_label_category[catstring][lb]
+    from catstring where
+    category_relname(cat,catstring)
 
-//def label:category_string[attr] = category_relname[attr]
+def label:category_string[cat] = category_relname[cat]
 
 /* How long between when an issue is created and when it is closed?
    FILTER can take values Issue, PullRequest, GithubIssue
@@ -76,9 +75,9 @@ def has_label_category[cat][lb] = substring[label_string, ind+1, num_chars[label
     not regex_match[regex_label_split_char, substring[label_string,1,ind-1]]
 
 // This is a hack, hopefully relname_string will support conversion of any string to relname
-/*def label_categories(cat) = has_label_category(cat,_,_)
+def label_categories(cat) = has_label_category(cat,_,_)
 def category_json_string = concat["{ \"", concat[s, "\": {} }"]] for s where label_categories(s)
-def category_relname(c,s) = parse_json[ category_json_string[s] ](c)*/
+def category_relname(c,s) = parse_json[ category_json_string[s] ](c)
 
 /*** Label calculated properties ***/
 
