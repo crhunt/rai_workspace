@@ -1,21 +1,21 @@
 {
-    "issues-formatted.json": {
+    "raicode-issues.json": {
         "rel": "json_issues",
         "optional": false
     },
-    "labels-formatted.json": {
+    "raicode-labels.json": {
         "rel": "json_labels",
         "optional": false
     },
-    "milestones-formatted.json": {
+    "raicode-milestones.json": {
         "rel": "json_milestones",
         "optional": false
     },
-    "user-details-formatted.json": {
+    "raicode-user-details.json": {
         "rel": "json_users",
         "optional": false
     },
-    "repo-formatted.json": {
+    "raicode-repo.json": {
         "rel": "json_repos",
         "optional": false
     },

@@ -21,8 +21,7 @@ def src_config[:raidocs] = { (:json_repos, concat[data_path,"raidocs-repo.json"]
  */
 
 // Repositories to load
-def repositories = { :raicode;
-                     :raidocs; }
+def repositories = { :raicode; }
 
 // Set paths
 def data_config[repo][name][:path] = src_config[repo][name]

@@ -1,6 +1,7 @@
 /*****
  * Properties common to pull requests and issues
  */
+
 // Constrain types for certain relations
 ic { github_issue:has:title ⊆ (GithubIssue, String) }
 ic { github_issue:has:number ⊆ (GithubIssue, Int) }
@@ -34,7 +35,6 @@ ic { function(github_issue:closed_at) }
 /*****
  * Labels
  */
-
 ic { label:has:name ⊆ (Label, String) }
 ic { function(label:has:name) }
 

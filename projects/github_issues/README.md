@@ -26,7 +26,7 @@ Reload .bashrc file:
 $ source ~/.bashrc
 ```
 
-### 3. Run script to pull data via GhApi API
+### 3. Run a script to pull data via GhApi API
 
 This script uses GhApi and the Github API to pull data from github. Pulls data to the same directory.
 
@@ -34,26 +34,18 @@ This script uses GhApi and the Github API to pull data from github. Pulls data t
 $ python3 pull_github_data.py
 ```
 
-Set the owner and/or repository with flags.
+Set the owner, repository, and local data path with flags.
 
 ```bash
-$ python3 pull_github_data.py --owner RelationalAI --repo raicode
+$ python3 pull_github_data.py --owner RelationalAI --repo raicode --path ../data
 ```
 
-### 4. Post-process files to render compatible with Rel
+The path can be a relative or absolute path. The final data files should be placed in the project data folder, `./projects/github_issues/data`. You will have the following files:
 
-Resolve null value compatibility issues with Rel, so we can insert the json data into our Rel program.
+1. {repo}-issues.json
+2. {repo}-labels.json
+3. {repo}-milestones.json
+4. {repo}-repo.json
+5. {repo}-user-details.json
 
-```bash
-$ bash format-json.sh
-```
-
-### 5. Place final files in data directory
-
-The files:
-
-1. issues-formatted.json
-2. labels-formatted.json
-3. milestones-formatted.json
-
-should be placed in the project data folder, `./projects/github_issues/data`.
+where {repo} is the name of the repository set with the `--repo` flag.
