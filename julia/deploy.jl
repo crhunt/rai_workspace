@@ -131,6 +131,32 @@ function reinstall_scenario(; project_name::String=current_project,
                            scenario=scenario, sequential=sequential)
 end
 
+function delete_scenario(; project_name::String=current_project, 
+                        scenario::AbstractString=current_scenario,
+                        dbname::Symbol=current_dbname)
+
+    # Check overrides on global settings
+    conn = check_conn(project_name,scenario,dbname)
+
+    # Delete Rel files
+    @info "Deleting sources for scenario '$(scenario)' in project '$(project_name)'"
+    delete_scenario_src(conn)
+
+end
+
+function install_single_source(file_name::String; project_name::String=current_project, 
+                            scenario::AbstractString=current_scenario,
+                            dbname::Symbol=current_dbname)
+
+    # Check overrides on global settings
+    conn = check_conn(project_name,scenario,dbname)
+    # Get path
+    project_path = get_project_path(project_name)
+    # Install source file
+    install_src_file(conn,file_name,project_path)
+
+end
+
 function list_scenario_source(; project_name::String=current_project, 
                               scenario::AbstractString=current_scenario,
                               dbname::Symbol=current_dbname)
