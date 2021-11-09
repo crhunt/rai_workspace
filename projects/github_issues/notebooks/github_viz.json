@@ -1,0 +1,107 @@
+{
+  "cells": [
+    {
+      "id": "6b5ce625-4f5a-4c82-a8ba-9237b5ce6a9a",
+      "inputs": [
+      ],
+      "isCodeFolded": true,
+      "name": "",
+      "source": "# Github Issue Tracking\n\nGithub Issues Tracking uses the power of knowledge graphs to model how production-scale software development can be tracked and important insights into productivity can be derived. Starting from raw data related to how our team contributes code, tracked via Github, we build a knowledge graph that destills behavior trends and development progress into easy-to-consume visualizations. Finally, we discuss how the insights gained inform how we manage projects and plan our product roadmap.\n\n## What is Github?\n\nGithub is a platform for code development, including services for hosting, maintaining, and reviewing code as well as project tracking and management tools. Projects are stored in repositories, with git as the central tool for source code management and version control. *TO DO: Something about popularity.*",
+      "type": "markdown"
+    },
+    {
+      "id": "7617f9e7-0038-4897-bb6e-73c161ed0e57",
+      "inputs": [
+      ],
+      "isCodeFolded": true,
+      "name": "",
+      "source": "## Github data as a knowledge graph\n\nWhat does Github data look like as a knowledge graph? One type of node, or **entity**, we consider is the members of our team--the **user** which contributes to the code base. Designed with collaboration in mind, git and Github support many users working together.\n\nThere are other types of entities we would like to track. Code bases are stored in a **repository** (or repo for short), and contributions to a repo may be tied to a **milestone** or an **issue** (or several). An issue is a write-up that can detail anything from bugs that need to be fixed to new features to be added. New code is added through a process called a **pull request**, in which a set of changes to the codebase are reviewed, tested, and merged together with the existing codebase. Both issues and pull requests can be tagged with a **label** (or several) that describe the nature of the issue, or what issue the pull request addresses. \n\nThese entities populate our knowledge graph and are linked together. For example, a Github Issue has one or more Labels. (Entities are capitalized for clarity.) Represented as an ORM diagram, this relationship looks like,\n\n<img src=\"https://raw.githubusercontent.com/RelationalAI/crhunt/2caa2704bfd68a6d45526e02e44252d34bde4935/projects/github_issues/notebooks/images/GI_has_label_Label.png?token=AIME7RT7DVRZ65RF5JK6S5DBSLL7M\"/>",
+      "type": "markdown"
+    },
+    {
+      "id": "f4466e5f-acd1-42f8-a8fe-3f4b7246d3d7",
+      "inputs": [
+      ],
+      "isCodeFolded": true,
+      "name": "",
+      "source": "## Install data\n\nData is uploaded from local json files. See the [repository](https://github.com/RelationalAI/crhunt/tree/main/projects/github_issues) for tools to pull and format data.",
+      "type": "markdown"
+    },
+    {
+      "id": "81edbdfe-4159-4ff0-b159-66f9a2423d71",
+      "inputs": [
+        {
+          "relation": "json_issues_raicode"
+        },
+        {
+          "relation": "json_labels_raicode"
+        },
+        {
+          "relation": "json_milestones_raicode"
+        },
+        {
+          "relation": "json_repos_raicode"
+        },
+        {
+          "relation": "json_users_raicode"
+        }
+      ],
+      "isCodeFolded": true,
+      "source": "/*\n * Load data, specifying repo name for each data type json_*\n * \n * Note: We are not using parse_json directly because of some parse handling that is different atm.\n */\ndef repo = :raicode\ndef config:repos[:data] = json_repos_raicode\ndef config:labels[:data] = json_labels_raicode\ndef config:milestones[:data] = json_milestones_raicode\ndef config:users[:data] = json_users_raicode\ndef config:issues[:data] = json_issues_raicode\n\ndef insert[:json_repos] = repo, load_json[config:repos]\ndef insert[:json_labels] = repo, load_json[config:labels]\ndef insert[:json_milestones] = repo, load_json[config:milestones]\ndef insert[:json_users] = repo, load_json[config:users]\ndef insert[:json_issues] = repo, load_json[config:issues]",
+      "type": "update"
+    },
+    {
+      "id": "740739b3-0a28-47be-8fdb-ce4690dbc573",
+      "inputs": [
+      ],
+      "isCodeFolded": true,
+      "name": "",
+      "source": "Check data insertion.",
+      "type": "markdown"
+    },
+    {
+      "id": "f1fd4251-b612-4f89-b4a8-81be8f3f7306",
+      "inputs": [
+      ],
+      "isCodeFolded": true,
+      "name": "",
+      "source": "def output = json_repos:raicode[:[], 1, :name]",
+      "type": "query"
+    },
+    {
+      "id": "5d64a160-38b9-4af5-8f7e-69172fde5c03",
+      "inputs": [
+      ],
+      "isCodeFolded": true,
+      "name": "",
+      "source": "## Issue Tracking\n\nTracking raicode issues and pull requests.",
+      "type": "markdown"
+    },
+    {
+      "id": "de1b8854-9626-4bad-b39c-035f9c68013e",
+      "inputs": [
+      ],
+      "isCodeFolded": true,
+      "name": "",
+      "source": "## How does the issue label impact issue resolution time?\n\nDoes the duration an issue is open depend on its priority? On whether it addresses a bug or new feature?",
+      "type": "markdown"
+    },
+    {
+      "id": "03293d00-109e-4182-b700-e6e910f491ee",
+      "inputs": [
+      ],
+      "name": "",
+      "source": "def priority_data:mean = \n\tlabel:duration:agg[mean][Issue]\ndef priority_data:label = \n\tlabel:in:priority\ndef priority_data:order = \n\t{ (\"low\", 1); (\"medium\",2); (\"high\",3); (\"urgent\",4); }\n\ndef chart = vegalite:bar[:label, :mean, {:data, priority_data}]\ndef output = vegalite:plot[chart]",
+      "type": "query"
+    },
+    {
+      "id": "dc3c19c0-9f09-4a20-905d-5a3fc6d2a58a",
+      "name": "",
+      "source": "",
+      "type": "query"
+    }
+  ],
+  "metadata": {
+    "notebookFormatVersion": "0.0.1"
+  }
+}
