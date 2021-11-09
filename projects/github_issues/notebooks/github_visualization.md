@@ -14,7 +14,9 @@ There are other types of entities we would like to track. Code bases are stored 
 
 The nodes of our graph are instances of these entities: Repository, Milestone, Issue, Pull Request, Label. The instances populate our knowledge graph and are linked together. For example, most of the attributes of an Issue and a Pull Request are the same, so we can consider them as subtypes of a single entity, which we'll call a Github Issue. Represented as an Object Role Modeling (ORM) diagram, this relationship looks like,
 
-<img src="https://raw.githubusercontent.com/RelationalAI/crhunt/2caa2704bfd68a6d45526e02e44252d34bde4935/projects/github_issues/notebooks/images/GI_has_label_Label.png?token=AIME7RT7DVRZ65RF5JK6S5DBSLL7M"/>
+<!--img src="https://raw.githubusercontent.com/RelationalAI/crhunt/2caa2704bfd68a6d45526e02e44252d34bde4935/projects/github_issues/notebooks/images/GI_has_label_Label.png?token=AIME7RT7DVRZ65RF5JK6S5DBSLL7M"/-->
+
+![Github Issue subtypes](images/Issue_PR_subtype_GI.png)
 
 Each Github Issue has one or more Labels. In ORM this relationship looks like,
 
@@ -86,4 +88,18 @@ def json_label[lb] = json_labels[repo][:[], i]
 > !! TO DO: `json_label` and `json_labels` should have less similar names
 
 Rel is more than simply a querying language. We can build out our model with complex calculations as well, keeping all of our data and logic in one place. For example, our model includes relations like `label:duration:percentile` which for a given percentile value, calculates the duration that a Github Issue remains open. The result can also be filtered by Issue or Pull Request. The relation is *inlined* which means it is only calculated when demanded during a query. Similarly, `label:duration:agg` can be used to calculate aggregations of the duration, such as the mean or standard deviation.
+
+## How does issue label impact issue resolution time?
+
+Does the duration an issue is open depend on its priority? On whether it addresses a bug or new feature?
+
+```
+query cell result
+```
+
+The knowledge graph is designed to parse label strings and generate relations based on the label values. Our product repository includes labels like "priority:high" and "type:bug", which become relations like `label:in:priority` and `label:in:type`, where the keys are label instances and the values are the string values of the label, in our example "high" and "bug" respectively.
+
+![Label category](images/label_category.png)
+
+The logic to parse the labels can be easily customized to other repository label naming conventions, and all of the string processing happens right in your model, without relying on data produced by opaque analyses elsewhere.
 
