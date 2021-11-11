@@ -1,0 +1,23 @@
+{
+  "cells": [
+    {
+      "id": "2598f1e1-a910-4212-b1ac-cdbfb1154489",
+      "inputs": [
+      ],
+      "name": "soundex-definition",
+      "source": "// Split the string\n@inline\ndef split_string[S] = n, substring[S,n,n]\n\tfrom n in range[1,num_chars[S],1]\n\n// Sound replacement rules\ndef soundex_replace =\n\t{ ({\"b\"; \"f\"; \"p\"; \"v\";}, \"1\");\n      ({\"c\"; \"g\"; \"j\"; \"k\"; \"q\"; \"s\"; \"x\"; \"z\";}, \"2\");\n      ({\"d\";\"t\";}, \"3\");\n      (\"l\", \"4\");\n      ({\"m\";\"n\";}, \"5\");\n      (\"r\", \"6\");\n      ({\"a\"; \"e\"; \"i\"; \"o\"; \"u\";}, \"0\"); }\n\n// Keep first letter\n@inline\ndef soundex_pre[S] = 0, uppercase[substring[S,1,1]]\n// Replace letters with sound encoding, drop letters without replacements\n@inline\ndef soundex_pre[S][n] = soundex_replace[ split_string[ lowercase[S]][n] ]\n\n// Remaining rules\n@inline\ndef soundex_filter[S](n,v) =\n\tsoundex_pre[S](n,v) and\n    not soundex_pre[S](n-1,v) and // No adjacent numbers the same\n\tnot soundex_pre[S](n,\"0\") and // No vowels\n\tnot n=1 // Drop the number for the first letter\n\n// Join string and pad with zeros\n@inline\ndef soundex[S] = substring[ concat[ string_join[\"\", soundex_filter[S]], \"000\"], 1, 4 ]\n\ndef mystring = \"Tymczak\"\ndef output = soundex[mystring] // T522",
+      "type": "install"
+    },
+    {
+      "id": "5c52351d-899f-4f2a-8fae-eee828c51240",
+      "inputs": [
+      ],
+      "name": "",
+      "source": "def test_strings = \n\t{ (\"Robert\", \"R163\");\n      (\"Rupert\", \"R163\");\n      (\"Rubin\", \"R150\");\n      (\"Ashcroft\", \"A261\");\n      (\"Ashcraft\", \"A261\");\n      (\"Tymczak\", \"T522\");\n      (\"Pfister\", \"P236\");\n      (\"Honeyman\", \"H555\"); }\n\ndef output = name, answer, result\n\tfrom name, answer, result where\n\ttest_strings(name, answer) and\n\tresult = soundex[name]",
+      "type": "query"
+    }
+  ],
+  "metadata": {
+    "notebookFormatVersion": "0.0.1"
+  }
+}
