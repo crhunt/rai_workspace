@@ -39,8 +39,7 @@ end
 # -- Set the database --
 
 function set_project(project_name::String; scenario::AbstractString="default",
-                     dbname::Symbol=:default, create_db::Bool=true, 
-                     overwrite::Bool=true)
+                     dbname::Symbol=:default, overwrite::Bool=false)
     # Set db name
     global current_dbname = set_dbname(dbname, project_name, scenario)
 
@@ -54,10 +53,9 @@ function set_project(project_name::String; scenario::AbstractString="default",
     println("Set database for project/scenario to: :$(current_dbname)")
     
     # Recreate DB
-    if create_db || overwrite
+    if overwrite
         create_database(current_conn; overwrite=overwrite)
-        overwrite ? println("Database created with dbname: :$(current_dbname)\nDatabase :$(current_dbname) overwritten.") : 
-                    println("Database created with dbname: $(current_dbname)")
+        println("Database created with dbname: :$(current_dbname)\nDatabase :$(current_dbname) overwritten.")
     end
 
 end
@@ -89,10 +87,10 @@ end
 
 # -- Install EDB --
 
-function insert_data(project_name::String=current_project, 
+function insert_data(; project_name::String=current_project, 
                       scenario::AbstractString=current_scenario,
                       dbname::Symbol=current_dbname, create_db::Bool=false, 
-                      overwrite::Bool=true)
+                      overwrite::Bool=true, as_string::Bool=false)
 
     # Check overrides on global settings
     conn = check_conn(project_name,scenario,dbname)
@@ -104,12 +102,12 @@ function insert_data(project_name::String=current_project,
     end
 
     # Install data
-    insert_scenario_data(conn, project_name; scenario=scenario)
+    insert_scenario_data(conn, project_name; scenario=scenario, as_string=as_string)
 end
 
 # -- Install IDB --
 
-function install_scenario(project_name::String=current_project, 
+function install_scenario(; project_name::String=current_project, 
                           scenario::AbstractString=current_scenario,
                           dbname::Symbol=current_dbname, sequential::Bool=false)
     
@@ -121,7 +119,7 @@ function install_scenario(project_name::String=current_project,
                          scenario=scenario, sequential=sequential)
 end
 
-function reinstall_scenario(project_name::String=current_project, 
+function reinstall_scenario(; project_name::String=current_project, 
                             scenario::AbstractString=current_scenario,
                             dbname::Symbol=current_dbname, sequential::Bool=false)
 
@@ -133,7 +131,33 @@ function reinstall_scenario(project_name::String=current_project,
                            scenario=scenario, sequential=sequential)
 end
 
-function list_scenario_source(project_name::String=current_project, 
+function delete_scenario(; project_name::String=current_project, 
+                        scenario::AbstractString=current_scenario,
+                        dbname::Symbol=current_dbname)
+
+    # Check overrides on global settings
+    conn = check_conn(project_name,scenario,dbname)
+
+    # Delete Rel files
+    @info "Deleting sources for scenario '$(scenario)' in project '$(project_name)'"
+    delete_scenario_src(conn)
+
+end
+
+function install_single_source(file_name::String; project_name::String=current_project, 
+                            scenario::AbstractString=current_scenario,
+                            dbname::Symbol=current_dbname)
+
+    # Check overrides on global settings
+    conn = check_conn(project_name,scenario,dbname)
+    # Get path
+    project_path = get_project_path(project_name)
+    # Install source file
+    install_src_file(conn,file_name,project_path)
+
+end
+
+function list_scenario_source(; project_name::String=current_project, 
                               scenario::AbstractString=current_scenario,
                               dbname::Symbol=current_dbname)
     
@@ -167,6 +191,7 @@ function pretty_print_query(relations::Array{Symbol}, results::RelationalAITypes
             """)
         end
     end
+    return rel_map
 
 end
 
@@ -221,6 +246,10 @@ function replace_relation(relation_name::Symbol,
 
     pretty_print_query([relation_name], results)
 
+end
+
+function clear_local_pager()
+    run(`bash -c "rm -rf ~/.rai-server/pager"`)
 end
 
 println("Including deploy.jl")

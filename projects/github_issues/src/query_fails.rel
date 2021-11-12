@@ -1,5 +1,0 @@
-// Fails
-//def date_window(issue,period) = datetime_subtract(closed_at[issue],period,created_at[issue])
-// Succeeds
-def date_window(issue,period) = 
-    period = ( datetime_to_nanoseconds[closed_at[issue]] - datetime_to_nanoseconds[created_at[issue]] ) / (3600 * 1e9)

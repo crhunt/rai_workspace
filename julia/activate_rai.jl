@@ -26,7 +26,6 @@ function set_server(server_type::String;
     if ( current_server_type == local_server || current_server_type == binary_server )
         include("julia/local_server.jl")
         global current_mgmt_conn = missing
-        startup_server()
     elseif current_server_type == remote_server
         # Verify SSL? Yes if default profile
         verify_ssl = profile === "default" ? true : false
@@ -38,28 +37,21 @@ function set_server(server_type::String;
         println("Profile: $(profile)")
         println("Verify SSL: $(verify_ssl)")
         println("Compute name: $(current_compute_name)")
-        accounts = join( Set( [String(x.account_name) for x in list_users(current_mgmt_conn)] ), ", " )
+        accounts = join( Set( [String(x.account_name) for x in list_computes(current_mgmt_conn)] ), ", " )
         println("Account(s): $(accounts)")
-        computes = join( [String(x.name) for x in list_computes(current_mgmt_conn) if isequal(x.state,:PROVISIONED)], ", " )
-        println("Provisioned computes: $(computes)")
-        if !occursin(current_compute_name,computes)
-            @warn "Compute $(current_compute_name) not found in provisioned computes."
-        end
+        provisioned_computes()
     else
         @warn "Server type not recognized. Specify: 'binary-server', 'local-server', or 'remote-server'."
     end
 
 end
 
-"""
-function shutdown_server()
-    if current_server_type == "binary-server"
-        run(`pkill rai-server`)
-    elseif current_server_type == "local-server"
-        rai_server = RAIServer(Server.Configuration(; profile=:functions ))
-        stop!(rai_server)
+function provisioned_computes()
+    computes = join( [String(x.name) for x in list_computes(current_mgmt_conn) if isequal(x.state,:PROVISIONED)], ", " )
+    println("Provisioned computes: $(computes)")
+    if !occursin(current_compute_name,computes)
+        @warn "Compute $(current_compute_name) not found in provisioned computes."
     end
 end
-"""
 
 println("Including activate_rai.jl")

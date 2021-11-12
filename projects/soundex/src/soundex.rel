@@ -1,0 +1,35 @@
+/* American Soundex */
+
+/* Rule 1: Keep first letter (capitalized, at index 0).
+ */
+@inline
+def soundex_list[S] = 0, uppercase[substring[S,1,1]]
+
+/* Rule 2: Create a list with each letter replaced by the number encoding.
+ *     Note: Since our keys are defined by soundex_replace, letters not 
+ *           included in the encoding are dropped.
+ * The final list is sorted to re-index encoded letters consecutively.
+ */
+@inline
+def soundex_list[S](m,vv) = sort[n,v: soundex_replace[ split_string[ lowercase[S]][n] ](v) ](m,nn,vv) from nn
+
+def soundex_replace =
+	{ ({"b"; "f"; "p"; "v";}, "1");
+      ({"c"; "g"; "j"; "k"; "q"; "s"; "x"; "z";}, "2");
+      ({"d";"t";}, "3");
+      ("l", "4");
+      ({"m";"n";}, "5");
+      ("r", "6");
+      ({"a"; "e"; "i"; "o"; "u";}, "0"); }
+
+@inline
+def soundex_apply_rules[S] = n, v
+	from n, v where
+	soundex_list[S](n,v) and
+	not soundex_list[S](n-1,v) and // Rule 3: Drop identical adjacent encodings (if not separated by a vowel)
+	not v = "0" and                // Rule 1: Drop vowels
+	not n = 1                      // Rule 1: Keep first letter and do not encode
+
+// Rule 4: Join string and pad with zeros. Keep first 4 characters.
+@inline
+def soundex[S] = substring[ concat[ string_join["", soundex_apply_rules[S]], "000"], 1, 4 ]

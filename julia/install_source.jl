@@ -15,7 +15,7 @@ end
 
 # -- Call these functions to load rel source files
 
-function install_src_file(conn::LocalConnection,
+function install_src_file(conn::Connection,
                           file_name::AbstractString, 
                           project_path::AbstractString)
     
@@ -27,7 +27,7 @@ function install_src_file(conn::LocalConnection,
     @info "...Success."
 end
 
-function install_rel(conn::LocalConnection,
+function install_rel(conn::Connection,
                      rel_string::AbstractString; 
                      name::AbstractString="source")
 
@@ -37,7 +37,7 @@ function install_rel(conn::LocalConnection,
     @info "...Success."
 end
 
-function install_scenario_src(conn::LocalConnection, project_name::AbstractString; 
+function install_scenario_src(conn::Connection, project_name::AbstractString; 
                               scenario::AbstractString="default", sequential::Bool=false)
 
     # Load all source files for the scenario
@@ -64,24 +64,31 @@ function install_scenario_src(conn::LocalConnection, project_name::AbstractStrin
             rel = rel * load_src(src_file,project_path)
         end
         install_rel(conn,rel;name="$(project_name)_$(scenario)")
+        sourcelist = join(src_file_names, ", ", ", and ")
+        println("Installed files: $(sourcelist).")
     end
 end
 
-function reinstall_scenario_src(conn::LocalConnection, project_name::AbstractString; 
-                                scenario::AbstractString="default", sequential::Bool=false)
-    
+function delete_scenario_src(conn::Connection)
     # List sources
     sources = list_source(conn)
     # Sources not from raicode
     scenario_srcs = [k for k in keys(sources) if !occursin(ENV["RAI_PATH"],sources[k].path)]
 
     # Delete sources
-    @info "Deleting sources for scenario '$(scenario)' in project '$(project_name)'"
     for srcname in scenario_srcs
         @info "Deleting source $(srcname)..."
         delete_source(conn, srcname)
         @info "...Complete."
     end
+end
+
+function reinstall_scenario_src(conn::Connection, project_name::AbstractString; 
+                                scenario::AbstractString="default", sequential::Bool=false)
+
+    # Delete sources
+    @info "Deleting sources for scenario '$(scenario)' in project '$(project_name)'"
+    delete_scenario_src(conn);
 
     # Install sources
     install_scenario_src(conn,project_name;scenario=scenario,sequential=sequential)
