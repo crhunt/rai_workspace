@@ -1,26 +1,28 @@
 {
   "cells": [
     {
-      "id": "8dfd6988-823d-4093-9a0b-2f57725115c8",
+      "id": "b7638d7a-92ca-47c9-a400-278a4bfe05e8",
       "inputs": [
       ],
-      "source": "// Split the string\ndef mystring = \"robert\"\n\n@inline\ndef split_string[S] = n, substring[S,n,n]\n\tfrom n in range[1,num_chars[S],1]\n\ndef soundex_replace =\n\t{ ({\"b\"; \"f\"; \"p\"; \"v\";}, \"1\");\n      ({\"c\"; \"g\"; \"j\"; \"k\"; \"q\"; \"s\"; \"x\"; \"z\";}, \"2\");\n      ({\"d\";\"t\";}, \"3\");\n      (\"l\", \"4\");\n      ({\"m\";\"n\";}, \"5\");\n      (\"r\", \"6\"); }\n\ndef mychars(n,v) = split_string[mystring](n,v) and\n\tnot n = 1\ndef mysoundex = 1, uppercase[substring[mystring,1,1]]\ndef mysoundex[n] = soundex_replace[ mychars[n] ]\n\ndef soundex = substring[ string_join[\"\", mysoundex], 1, 4]\n\ndef output = soundex",
-      "type": "query"
-    },
-    {
-      "id": "4159b8b3-527e-4be2-be01-d341a48045a9",
-      "inputs": [
-      ],
+      "isCodeFolded": true,
       "name": "",
-      "source": "def mystring = \"Rubin\"\n\n// Split the string\n@inline\ndef split_string[S] = n, substring[S,n,n]\n\tfrom n in range[1,num_chars[S],1]\n\n// Sound replacement rules\ndef soundex_replace =\n\t{ ({\"b\"; \"f\"; \"p\"; \"v\";}, \"1\");\n      ({\"c\"; \"g\"; \"j\"; \"k\"; \"q\"; \"s\"; \"x\"; \"z\";}, \"2\");\n      ({\"d\";\"t\";}, \"3\");\n      (\"l\", \"4\");\n      ({\"m\";\"n\";}, \"5\");\n      (\"r\", \"6\");\n      ({\"a\"; \"e\"; \"i\"; \"o\"; \"u\";}, \"0\"); }\n\n// Keep first letter\ndef mysoundex = 0, uppercase[substring[mystring,1,1]]\n// Replace letters with sound encoding, drop letters without replacements\ndef mysoundex[n] = soundex_replace[ split_string[ lowercase[mystring]][n] ]\n\n// Remaining rules\ndef mysoundex_filter(n,v) =\n\tmysoundex(n,v) and\n    not mysoundex(n-1,v) and\n\tnot mysoundex(n,\"0\") and\n\tnot n=1\n\ndef soundex = substring[ concat[ string_join[\"\", mysoundex_filter], \"000\"], 1, 4 ]\n\ndef output = soundex",
-      "type": "query"
+      "source": "# Soundex\n\n## What is Soundex?\n\nFrom Wikipedia:\n\n> Soundex is a phonetic algorithm for indexing names by sound, as pronounced in English. The goal is for homophones to be encoded to the same representation so that they can be matched despite minor differences in spelling.\n\n> The algorithm mainly encodes consonants; a vowel will not be encoded unless it is the first letter. Soundex is the most widely known of all phonetic algorithms (in part because it is a standard feature of popular database software such as [...] SQL.\n\n## Rules for Soundex enocoder\n\nThe rules are as follows:\n\n1. Retain the first letter of the name and drop all other occurrences of a, e, i, o, u, y, h, w.\n2. Replace consonants with digits as follows (after the first letter):\n   - b, f, p, v → 1\n   - c, g, j, k, q, s, x, z → 2\n   - d, t → 3\n   - l → 4\n   - m, n → 5\n   - r → 6\n3. If two or more letters with the same number are adjacent in the original name (before step 1), only retain the first letter; also two letters with the same number separated by 'h' or 'w' are coded as a single number, whereas such letters separated by a vowel are coded twice. This rule also applies to the first letter.\n4. If you have too few letters in your word that you can't assign three numbers, append with zeros until there are three numbers. If you have four or more numbers, retain only the first three.",
+      "type": "markdown"
     },
     {
-      "id": "2598f1e1-a910-4212-b1ac-cdbfb1154489",
+      "id": "8ff3a7c4-a629-4ea7-8cc1-61de0c219751",
       "inputs": [
       ],
-      "name": "soundex-definition",
-      "source": "// Split the string\n@inline\ndef split_string[S] = n, substring[S,n,n]\n\tfrom n in range[1,num_chars[S],1]\n\n// Sound replacement rules\ndef soundex_replace =\n\t{ ({\"b\"; \"f\"; \"p\"; \"v\";}, \"1\");\n      ({\"c\"; \"g\"; \"j\"; \"k\"; \"q\"; \"s\"; \"x\"; \"z\";}, \"2\");\n      ({\"d\";\"t\";}, \"3\");\n      (\"l\", \"4\");\n      ({\"m\";\"n\";}, \"5\");\n      (\"r\", \"6\");\n      ({\"a\"; \"e\"; \"i\"; \"o\"; \"u\";}, \"0\"); }\n\n// Keep first letter\n@inline\ndef soundex_pre[S] = 0, uppercase[substring[S,1,1]]\n// Replace letters with sound encoding, drop letters without replacements\n@inline\ndef soundex_pre[S][n] = soundex_replace[ split_string[ lowercase[S]][n] ]\n\n// Remaining rules\n@inline\ndef soundex_filter[S](n,v) =\n\tsoundex_pre[S](n,v) and\n    not soundex_pre[S](n-1,v) and // No adjacent numbers the same\n\tnot soundex_pre[S](n,\"0\") and // No vowels\n\tnot n=1 // Drop the number for the first letter\n\n// Join string and pad with zeros\n@inline\ndef soundex[S] = substring[ concat[ string_join[\"\", soundex_filter[S]], \"000\"], 1, 4 ]\n\ndef mystring = \"Tymczak\"\ndef output = soundex[mystring] // T522",
+      "name": "define-split",
+      "source": "/* Custom string split function\n * \n * Input string is split into single-character strings.\n * Indexed by position in string.\n *     Note: still string type, not char\n */\n@inline\ndef split_string[S] = n, substring[S,n,n]\n\tfrom n in range[1,num_chars[S],1]",
+      "type": "install"
+    },
+    {
+      "id": "a86b74b4-daf1-47c3-8b8e-e401e15807cf",
+      "inputs": [
+      ],
+      "name": "define-soundex",
+      "source": "/* American Soundex */\n\n/* Rule 1: Keep first letter (capitalized, at index 0).\n */\n@inline\ndef soundex_list[S] = 0, uppercase[substring[S,1,1]]\n\n/* Rule 2: Create a list with each letter replaced by the number encoding.\n *     Note: Since our keys are defined by soundex_replace, letters not \n *           included in the encoding are dropped.\n * The final list is sorted to re-index encoded letters consecutively.\n */\n@inline\ndef soundex_list[S](m,vv) = sort[n,v: soundex_replace[ split_string[ lowercase[S]][n] ](v) ](m,nn,vv) from nn\n\ndef soundex_replace =\n\t{ ({\"b\"; \"f\"; \"p\"; \"v\";}, \"1\");\n      ({\"c\"; \"g\"; \"j\"; \"k\"; \"q\"; \"s\"; \"x\"; \"z\";}, \"2\");\n      ({\"d\";\"t\";}, \"3\");\n      (\"l\", \"4\");\n      ({\"m\";\"n\";}, \"5\");\n      (\"r\", \"6\");\n      ({\"a\"; \"e\"; \"i\"; \"o\"; \"u\";}, \"0\"); }\n\n@inline\ndef soundex_apply_rules[S] = n, v\n\tfrom n, v where\n\tsoundex_list[S](n,v) and\n\tnot soundex_list[S](n-1,v) and // Rule 3: Drop identical adjacent encodings (if not separated by a vowel)\n\tnot v = \"0\" and                // Rule 1: Drop vowels\n\tnot n = 1                      // Rule 1: Keep first letter and do not encode\n\n// Rule 4: Join string and pad with zeros. Keep first 4 characters.\n@inline\ndef soundex[S] = substring[ concat[ string_join[\"\", soundex_apply_rules[S]], \"000\"], 1, 4 ]\n",
       "type": "install"
     },
     {
@@ -28,7 +30,7 @@
       "inputs": [
       ],
       "name": "",
-      "source": "def test_strings = \n\t{ (\"Robert\", \"R163\");\n      (\"Rupert\", \"R163\");\n      (\"Rubin\", \"R150\");\n      (\"Ashcroft\", \"A261\");\n      (\"Ashcraft\", \"A261\");\n      (\"Tymczak\", \"T522\");\n      (\"Pfister\", \"P236\");\n      (\"Honeyman\", \"H555\"); }\n\ndef output = name, answer, result\n\tfrom name, answer, result where\n\ttest_strings(name, answer) and\n\tresult = soundex[name]",
+      "source": "def test_string = \n\t{ (1, \"Robert\", \"R163\");\n      (2, \"Rupert\", \"R163\");\n      (3, \"Rubin\", \"R150\");\n      (4, \"Ashcroft\", \"A261\");\n      (5, \"Ashcraft\", \"A261\");\n      (6, \"Tymczak\", \"T522\");\n      (7, \"Pfister\", \"P236\");\n      (8, \"Honeyman\", \"H555\");\n      (9, \"Flashcard\", \"F426\") }\n\ndef test_result:input(n,v) = test_string(n,v,_)\ndef test_result:soundex_correct(n,v) = test_string(n,_,v)\ndef test_result:soundex_result = n, result\n\tfrom n, name, result where\n\ttest_string(n, name, _) and\n\tresult = soundex[name]\n\ndef output = table[test_result]",
       "type": "query"
     }
   ],
