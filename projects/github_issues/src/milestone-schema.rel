@@ -1,0 +1,50 @@
+/*****
+ * Mapping milestones data to schema
+ */
+
+// Attributes
+def milestone:has[attr](m,v) = json_milestone[m,attr](v)
+    and supported_attributes:milestone(attr)
+
+def milestone:open(gi) = milestone:has:state(gi, "open")
+def milestone:closed(gi) = milestone:has:state(gi, "closed")
+
+// User involvement
+def milestone:creator[m] =
+        has_user_id[ json_milestone[m, :user, :node_id] ]
+
+module milestone
+    
+    // Dates
+    def created_at[m] = parse_iso_datetime[json_milestone[m, :created_at]]
+    def updated_at[m] = parse_iso_datetime[json_milestone[m, :updated_at]]
+    def due_on[m] = parse_iso_datetime[json_milestone[m, :due_on]]
+    def closed_at[m] = parse_iso_datetime[milestone_closed_at_string[m]]
+    // Belongs to repo
+    def in_repo(m,r) = regex_match(s, json_milestone[m,:url]) and 
+        repository:has:full_name(r,s)
+        from s
+
+end
+
+/* Date cleansing */
+
+// Internal use only
+// We're replacing null with empty string as a workaround for an open issue.
+def milestone_closed_at_string(x, s) =
+    json_milestone(x, :closed_at, s) and s != ""
+
+/**
+  These attributes we can include directly. Attributes not included here require
+  data transformation first to include in the model. For example, dates require parsing.
+  */
+
+def supported_attributes:milestone = attr
+    from u,attr,v where json_issue(u,attr,v) and
+    not { :created_at;
+          :updated_at;
+          :closed_at;
+          :due_on;
+          :id;
+          :node_id;
+          :creator; }(attr)

@@ -1,0 +1,47 @@
+/*****
+ * User information
+ */
+
+module user
+
+    def created_at[u] = parse_iso_datetime[ json_user[u,:created_at] ]
+    def updated_at[u] = parse_iso_datetime[ json_user[u,:updated_at] ]
+
+end
+
+
+def user:has[attr](u,v) = json_user[u,attr](v)
+    and supported_attributes:user(attr)
+
+// Types of user
+
+def Owner(u) =
+    User(u) and
+    repository:owner(_,u)
+
+def Organization(u) =
+    User(u) and
+    repository:organization(_,u)
+
+def Author(u) =
+    User(u) and
+    github_issue:author(_,u)
+
+def Assignee(u) =
+    User(u) and
+    github_issue:assignee(_,u)
+
+def Creator(u) =
+    User(u) and
+    milestone:creator(_,u)
+
+/**
+  These attributes we can include directly. Attributes not included here require
+  data transformation first to include in the model. For example, dates require parsing.
+  */
+def supported_attributes:user = attr
+    from u,attr,v where json_user(u,attr,v) and
+    not { :created_at;
+          :updated_at;
+          :id;
+          :node_id; }(attr)

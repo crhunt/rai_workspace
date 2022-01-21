@@ -1,0 +1,425 @@
+/**
+ * GitHub issues are either pull requests or issues
+ */
+def github_issue(x) =
+    json_issue(x, :id, x)
+
+/**
+ * Pull requests
+ */
+
+ic { pull_request ⊆ github_issue }
+
+def pull_request(x) =
+    exists(json_issue[x, :pull_request])
+
+/**
+ * Issues (not pull requests)
+ */
+
+ic { issue ⊆ github_issue }
+
+def issue(x) =
+    json_issue(x, :id, x) and
+    not pull_request(x)
+
+/***
+ * Properties common to pull requests and issues
+ */
+ic { issue_title ⊆ (github_issue, String) }
+ic { number ⊆ (github_issue, Int) }
+ic { created_at ⊆ (github_issue, DateTime) }
+ic { closed_at ⊆ (github_issue, DateTime) }
+ic { state ⊆ (github_issue, {"open"; "closed"}) }
+ic { has_label ⊆ (github_issue, label) }
+ic { has_assignee ⊆ (github_issue, user) }
+
+ic { open ⊆ github_issue }
+ic { closed ⊆ github_issue }
+ic { forall(x in github_issue: closed(x) xor open(x)) }
+
+ic { function(title) }
+ic { function(number) }
+ic { function(url) }
+ic { function(state) }
+ic { function(created_at) }
+ic { function(closed_at) }
+
+// ic { forall(x in closed: exists(dt: closed_at(x, dt)) }
+
+def number[x] =
+    json_issue[x, :number]
+
+def issue_title[x] =
+    json_issue[x, :title]
+
+def title = issue_title
+
+def url[x] =
+    json_issue[x, :html_url]
+
+def state[x] =
+    json_issue[x, :state]
+
+def open(x) =
+    state(x, "open")
+
+def closed(x) =
+    state(x, "closed")
+
+def created_at[x] =
+    parse_iso_datetime[json_issue[x, :created_at]]
+
+def closed_at[x] =
+    parse_iso_datetime[closed_at_string[x]]
+
+// We're replacing null with empty string as a workaround for an open issue.
+def closed_at_string(x, s) =
+    json_issue(x, :closed_at, s) and s != ""
+
+def author(x, u) =
+    json_issue(x, :user, :id, u)
+
+def has_milestone(i, m) =
+    json_issue(i, :milestone, :id, m)
+
+def has_label(i, l) =
+    json_issue(i, :labels, :[], _, :id, l)
+
+def has_assignee(x, u) =
+    json_issue(x, :assignees, :[], _, :id, u)
+
+/**
+ * Priorities
+ */
+def priority_urgent(i) =
+    has_label(i, l)
+    from l in priority_urgent_label
+
+def priority_high(i) =
+    has_label(i, l)
+    from l in priority_high_label
+
+def priority_medium(i) =
+    has_label(i, l)
+    from l in priority_medium_label
+
+def priority_low(i) =
+    has_label(i, l)
+    from l in priority_low_label
+
+def priority_missing(i) =
+    issue(i) and not (
+        priority_urgent(i) or
+        priority_high(i) or
+        priority_medium(i) or
+        priority_low(i))
+
+def priority[i in priority_urgent] = "urgent"
+def priority[i in priority_high] = "high"
+def priority[i in priority_medium] = "medium"
+def priority[i in priority_low] = "low"
+def priority[i in priority_missing] = "-"
+
+/**
+ *
+ */
+def component_label(l) =
+    label_name(l, s) and
+    regex_match("^component:", s)
+    from s
+
+/**
+ * Users (currently collected from users that occur in issues)
+ */
+ic { user_login ⊆ (user, String) }
+
+// users from the person who filed the issue
+def user(x) =
+    json_issue(_, :user, :id, x)
+
+// users from assignees
+def user(x) =
+    json_issue(_, :assignees, :[], _, :id, x)
+
+def user_login(x, s) =
+    json_issue(i, :user, :id, x) and
+    json_issue(i, :user, :login, s)
+    from i
+
+def user_login(x, s) =
+    json_issue(i, :assignees, :[], j, :id, x) and
+    json_issue(i, :assignees, :[], j, :login, s)
+    from i, j
+
+/**
+ * Labels (currently collected from labels that occur in issues)
+ */
+ic { label_name ⊆ (label, String) }
+ic { customer_label ⊆ label }
+ic { current_customer_label ⊆ customer_label }
+ic { function(label_name) }
+
+def label(x) =
+    json_label(x, :id, x)
+
+def label_name(l, s) =
+    json_label(l, :name, s)
+
+def customer_label(l) =
+    label_name(l, s) and
+    regex_match("^customer", s)
+    from s
+
+def current_customer_label(l) =
+    label_name(l, "customer:att") or
+    label_name(l, "customer:ey") or
+    label_name(l, "customer:lantik")
+
+def priority_urgent_label(l) =
+    label_name(l, "priority:urgent")
+
+def priority_high_label(l) =
+    label_name(l, "priority:high")
+
+def priority_medium_label(l) =
+    label_name(l, "priority:medium")
+
+def priority_low_label(l) =
+    label_name(l, "priority:low")
+
+/**
+ * Milestones
+ */
+ic { milestone_title ⊆ (milestone, String) }
+
+def milestone(x) =
+    json_milestone(x, :id, x)
+
+def milestone_title[x] =
+    json_milestone[x, :title]
+
+def title = milestone_title
+
+/**
+ * Temporal open pull requests
+ */
+ic { open_pull_request_count ⊆ (DateTime, Int) }
+
+def pr_relevant_date(dt) = exists(p: pull_request(p) and created_at(p, dt))
+def pr_relevant_date(dt) = exists(p: pull_request(p) and closed_at(p, dt))
+
+def open_pull_request_count_1[dt in pr_relevant_date] =
+    count[p: pull_request(p) and created_at[p] <= dt < closed_at[p]]
+
+def open_pull_request_count_2[dt in pr_relevant_date] =
+    count[p: pull_request(p) and created_at[p] <= dt and open(p)]
+
+def open_pull_request_count[dt in pr_relevant_date] =
+    (open_pull_request_count_1[dt] <++ 0) + (open_pull_request_count_2[dt] <++ 0)
+
+/**
+ * Utilities for JSON schema mapping
+ */
+
+def json_issue[x] =
+    json_issues[:[], i]
+    from i where json_issues(:[], i, :id, x)
+
+def json_label[x] =
+    json_labels[:[], i]
+    from i where json_labels(:[], i, :id, x)
+
+def json_milestone[x] =
+    json_milestones[:[], i]
+    from i where json_milestones(:[], i, :id, x)
+
+/**
+ * Misc utils
+ */
+def iso_format = "yyyy-mm-ddTHH:MM:SS"
+
+// Bleh
+@inline
+def parse_iso_datetime[s] = parse_datetime[substring[s, 1, 19], iso_format]
+
+@inline
+def year[dt] = datetime_year[dt, "UTC"]
+
+@inline
+def quarterofyear[dt] = datetime_quarterofyear[dt, "UTC"]
+
+@inline
+def monthofyear[dt] = datetime_monthofyear[dt, "UTC"]
+
+@inline
+def quarter[dt] = concat[string[year[dt]], concat["-Q", string[quarterofyear[dt]]]]
+
+
+/**
+ * RAI account info
+ */
+//ic { forall(u where has_assignee(_, u): exists(user_name[u])) }
+
+def user_name =
+    user_login.login_name
+
+def login_name =
+    ("amirsh", "Amir");
+    ("epasalic", "Emir Pasalic");
+    ("larf311", "Trevor Paddock");
+    ("mariabaladuggimpudi", "Bala");
+    ("millerjoey", "Joe Miller");
+    ("rodericpaulk", "Rod");
+    ("vilterp", "Pete Vilter");
+    ("dbalakri", "Darshana");
+    ("dewilson", "Dana");
+    ("mcmcgrath13", "Mary");
+    ("samuelkolb", "Samuel");
+    ("tsourolampis", "Babis");
+    ("pabsts", "Stefan");
+    ("remysucre", "Remy");
+    ("NRHelmi", "Helmi");
+    ("Liby99", "Ziyang");
+    ("Sacha0", "Sacha");
+    ("antoulas-rai", "Alex Ntoulas");
+    ("rbvermaa", "Rob Vermaas");
+    ("tomasrelai", "Tomas");
+    ("tveldhui", "Todd Veldhuizen");
+    ("Chakerbh", "Chaker");
+    ("ntzia", "	Nikolaos Tziavelis");
+    ("ElSeidy", "Mohammad ElSeidy");
+    ("mdashti", "Mohammad Dashti");
+    ("nystrom", "Nate Nystrom");
+    ("janrous-rai", "Jan");
+    ("rai-nhdaly", "Nathan Daly");
+    ("hung-q-ngo", "Hung");
+    ("eoxxs", "David Bach");
+    ("comnik", "Niko");
+    ("rgankema", "Richard Gankema");
+    ("mabokhamis", "Mahmoud");
+    ("li1", "Malte");
+    ("rcurtin", "Ryan Curtin");
+    ("mbravenboer", "Martin Bravenboer");
+    ("hall-alex", "Alex Hall");
+    ("geokollias"; "George Kollias");
+    ("muralipusala", "Murali");
+    ("cliffclick", "Cliff Click");
+    ("robbear", "Rob Bearman");
+    ("Segflow", "Meher");
+    ("AzamatB", "Azamat");
+    ("sjbertolani", "Steve Bertolani");
+    ("kurtStirewalt", "Kurt Stirewalt");
+    ("jagrafft", "Jason");
+    ("geokollias", "George");
+    ("sharathjapa", "Sharath");
+    ("azreika", "Abdul");
+    ("Hoda-Moradi", "Hoda");
+    ("yimin-rai", "Yimin");
+    ("cfguerra", "Carlos");
+    ("nassarhuda", "Huda")
+
+/**
+ * HTML tables for reporting
+ */
+@inline
+def html_issue_table[R] =
+    html[issue_table[R]]
+
+@inline
+def issue_section[title, R] =
+    concat["<h2>", concat[title, concat["</h2>", issue_table[R]]]]
+
+@inline
+def issue_table[R] =
+    concat["""<table style='max-width: 100ch'>
+            <thead>
+                  <tr>
+                      <th>Nr</th>
+                      <th>Title</th>
+                      <th>Priority</th>
+                      <th>Assignee</th>
+                  </tr>
+            </thead>
+            <tbody>
+        """,
+        concat[string_join["", {issue_table_row[i] for i in R}],
+            "</tbody></table>"]]
+
+def issue_number_label[x in pull_request] =
+    concat["PR&nbsp;#", string[number[x]]]
+
+def issue_number_label[x in issue] =
+    concat["#", string[number[x]]]
+
+def issue_assignees_present[x in issue] =
+    string_join[", ", {user_name[u] for u in has_assignee[x]}]
+
+def issue_assignees[x in issue] =
+    issue_assignees_present[x] <++ ""
+
+def issue_table_row[x] =
+    concat["<tr><td>",
+        concat[issue_number_label[x],
+            concat["</td><td><a href=\"",
+                concat[url[x],
+                    concat["\">",
+                        concat[title[x],
+                            concat["</a></td>",
+                                concat["<td>",
+                                    concat[priority[x],
+                                        concat["</td><td>",
+                                            concat[issue_assignees[x],
+                                                    "</td></tr>"]]]]]]]]]]]
+
+@inline
+def label_section[l] =
+    issue_section[label_name[l], {x: has_label(x, l) and open(x)}]
+
+@inline
+def assignee_section[u] =
+    issue_section[user_name[u], {x: has_assignee(x, u) and open(x)}]
+
+@inline
+def customer_report =
+    string_join["\n", {label_section[l] for l in current_customer_label}]
+
+@inline
+def assignee_report =
+    string_join["\n", {assignee_section[u] for u in user}]
+
+
+/*
+@inline
+def html_table[R] =
+    html[string_table[R]]
+
+@inline
+def string_table[R] =
+    concat["<table style=\"max-width: 100ch\">",
+        concat[string_join["", {string_table_row[xs...] for xs... in R}],
+            "</table>"]]
+
+@inline
+def string_table_row[a] =
+    concat["<tr><td>",
+        concat[show_with_default[a],
+            "</td></tr>"]]
+
+@inline
+def string_table_row[a, b] =
+    concat["<tr><td>",
+        concat[show_with_default[a],
+            concat["</td><td>",
+                concat[show_with_default[b]],
+                    "</td></tr>"]]]
+
+
+@inline
+def show_with_default = show <++ show_default
+
+@inline
+def show_default[x] = string[x]
+
+def show[x in issue] = issue_title[x]
+*/

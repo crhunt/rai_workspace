@@ -1,0 +1,15 @@
+// Fails
+//def date_window(issue,period) = datetime_subtract(closed_at[issue],period,created_at[issue])
+// Succeeds
+def date_window(issue,period) = 
+    period = ( datetime_to_nanoseconds[closed_at[issue]] - datetime_to_nanoseconds[created_at[issue]] ) / (3600 * 1e9)
+
+// Succeeds
+//def is_index[cat](a_index) = {1;2;3;}(a_index) and cat = 1
+def is_index(a_index) = {1;2;3;}(a_index)
+
+module beta
+    def beta_vals = {(1,2);(2,4);(3,6);}
+    //def in_index[cat](b_index) = is_index(cat,beta[:beta_vals][b_index])
+    def in_index(b_index) = is_index(beta[:beta_vals][b_index])
+end
