@@ -116,4 +116,38 @@ Here we've added the relation `charge` to the module `lineitem`. For each primar
 
 But to go beyond simple queries and take advantage of Rel's knowledge graph capabilities, we need to go beyond the relational table paradigm  and compose a true graph schema.
 
-A graph in Rel is defined in the scope of a single module
+A graph in Rel is defined in the scope of a single module, with unary relations for each node and binary (or higher) arity relations for edges (hyperedges). All graph data is encoded as either a node or an edge connecting nodes, including the properties of nodes and edges.
+
+### Nodes
+
+One of the first steps in defining a graph schema is to ask, what should be the nodes of our graph? Each node represents a "thing" in our schema. A node may actually represent a physical thing, like a Part, but more likely it represents an abstracted concept, such as a Customer or Supplier, which may actually encompass a person/people or company. As we will see, some nodes may not translate to concrete "things" at all, in our worldview. But nonetheless treating these abstractions as nodes is useful for understanding how our data is connected.
+
+For data structured as relational tables, we can easily assume that any concept that is referenced by one or more unique keys should be a node on our graph. The ER diagram for TPC-H has already done much of the work for us: the entities defined there are natural nodes in our graph.
+
+Certain node properties are also good candidates for representation as an entity type.
+- properties with few values (categorical data)
+- In TPC-H: return flag, status, priority
+
+The nodes of a RAI graph can have two types, "entity" or "value". The entities in an ER diagram, and any node that would be identified by a key, is an entity type. Nodes that contain data, or properties of nodes, would be represented as a RAI value type node. Yes, properties of nodes are represented as nodes in their own right. We'll see how that works in practice when we populate our TPC-H graph.
+
+[Introduce Entity and Value ORM diagram representation]
+
+### Edges
+
+- Connect entities together
+- Connect entities to values (this is how we represent node properties)
+- Connect entity pairs or entity/value pairs to values (hyperedges, this is how we represent edge properties)
+
+## Populating the graph
+
+### Nodes: Entity definitions
+
+Our set of modules are each keyed by a primary key that is unique for that module. But in TPC-H, these are simple integers, and two modules may use the same keys to represent different nodes.
+
+### Edges: connecting entities
+
+### Hyperedges
+
+### Metadata
+
+## Querying the graph
