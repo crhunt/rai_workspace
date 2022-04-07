@@ -120,15 +120,16 @@ A graph in Rel is defined in the scope of a single module, with unary relations 
 
 ### Nodes
 
-One of the first steps in defining a graph schema is to ask, what should be the nodes of our graph? Each node represents a "thing" in our schema. A node may actually represent a physical thing, like a Part, but more likely it represents an abstracted concept, such as a Customer or Supplier, which may actually encompass a person/people or company. As we will see, some nodes may not translate to concrete "things" at all, in our worldview. But nonetheless treating these abstractions as nodes is useful for understanding how our data is connected.
+One of the first steps in defining a graph schema is to ask, what should be the nodes of our graph? Each node represents a "thing" in our schema. A node may actually represent a physical thing, like a Part, but more likely it represents an abstracted but well-understood concept, such as a Customer or Supplier or Nation. As we will see, some nodes may not translate to obvious "things" at all. But nonetheless treating these abstractions as nodes is useful for understanding how our data is connected.
 
 For data structured as relational tables, we can easily assume that any concept that is referenced by one or more unique keys should be a node on our graph. The ER diagram for TPC-H has already done much of the work for us: the entities defined there are natural nodes in our graph.
+
+The nodes of a RAI graph can have two types, "entity" or "value". The entities in an ER diagram, and any node that would be identified by a key, is an entity type. Nodes that contain data, or properties of nodes, would be represented as a RAI value type node. Yes, properties of nodes are represented as nodes in their own right. We'll see how that works in practice when we populate our TPC-H graph.
+- As a rule of thumb, entity type nodes are keyed by abstract hashes and value type nodes contain human-readable data.
 
 Certain node properties are also good candidates for representation as an entity type.
 - properties with few values (categorical data)
 - In TPC-H: return flag, status, priority
-
-The nodes of a RAI graph can have two types, "entity" or "value". The entities in an ER diagram, and any node that would be identified by a key, is an entity type. Nodes that contain data, or properties of nodes, would be represented as a RAI value type node. Yes, properties of nodes are represented as nodes in their own right. We'll see how that works in practice when we populate our TPC-H graph.
 
 [Introduce Entity and Value ORM diagram representation]
 
@@ -138,15 +139,31 @@ The nodes of a RAI graph can have two types, "entity" or "value". The entities i
 - Connect entities to values (this is how we represent node properties)
 - Connect entity pairs or entity/value pairs to values (hyperedges, this is how we represent edge properties)
 
+[Introduce fact ORM diagram representation]
+
 ## Populating the graph
 
-### Nodes: Entity definitions
+### Entity definitions
 
-Our set of modules are each keyed by a primary key that is unique for that module. But in TPC-H, these are simple integers, and two modules may use the same keys to represent different nodes.
+Our set of modules are each keyed by a primary key that is unique for that module. But in TPC-H, these are simple integers, and two modules may use the same keys to represent different nodes. For graph-scoped entities, we need graph-scoped keys. Rel provides a handy way to define these using an `entity` declaration.
 
-### Edges: connecting entities
+```
+entity Nation nation_id = first[nation]
+```
 
-### Hyperedges
+The first atom of `nation`, its key, is used to create a globally-unique node identifier. These are stored in the relation `Nation`. We also create a useful map between our key and the new entity identifier, `nation_id`.
+
+Entities can be defined using any number of keys. For the LineItem entity type, we use the part and supplier keys,
+
+```
+entity LineItem lineitem_id = p,s: lineitem(p,s,_)
+```
+
+### Add node properties
+
+### Connect nodes
+
+### Add edge properties as hyperedges
 
 ### Metadata
 
